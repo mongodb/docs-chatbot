@@ -18,6 +18,14 @@ export type GenerateUserPromptFuncParams = {
   conversation?: Conversation;
 
   /**
+    Additional contextual information provided by the user's client. This can
+    include arbitrary data that might be useful for generating a response. For
+    example, this could include the user's location, the device they are using,
+    their preferred programming language, etc.
+   */
+  clientContext?: Record<string, unknown>;
+
+  /**
     String Id for request
    */
   reqId: string;

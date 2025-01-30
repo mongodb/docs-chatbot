@@ -16,10 +16,13 @@ import { strict as assert } from "assert";
 import { GenerateUserPromptFunc } from "../processors/GenerateUserPromptFunc";
 import { FilterPreviousMessages } from "../processors/FilterPreviousMessages";
 
+export type ClientContext = Record<string, unknown>;
+
 export interface GenerateResponseParams {
   shouldStream: boolean;
   llm: ChatLlm;
   latestMessageText: string;
+  clientContext?: ClientContext;
   customData?: ConversationCustomData;
   dataStreamer?: DataStreamer;
   generateUserPrompt?: GenerateUserPromptFunc;
@@ -49,6 +52,7 @@ export async function generateResponse({
   shouldStream,
   llm,
   latestMessageText,
+  clientContext,
   customData,
   generateUserPrompt,
   filterPreviousMessages,
@@ -63,6 +67,7 @@ export async function generateResponse({
     await (generateUserPrompt
       ? generateUserPrompt({
           userMessageText: latestMessageText,
+          clientContext,
           conversation,
           reqId,
           customData,
