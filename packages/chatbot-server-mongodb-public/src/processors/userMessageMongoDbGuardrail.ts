@@ -139,6 +139,15 @@ const fewShotExamples: OpenAI.ChatCompletionMessageParam[] = [
       "This query asks for courses on generative artificial intelligence, which is a relevant area to MongoDB's business. Therefore, it is relevant to MongoDB.",
     rejectMessage: false,
   } satisfies UserMessageMongoDbGuardrailFunction),
+  // Example 16
+  makeUserMessage(
+    "What is an ODL?"
+  ),
+  makeAssistantFunctionCallMessage(name, {
+    reasoning:
+      "This query what an ODL is, which is an acronym for 'Operational Data Layer'. It is an architectural pattern. Therefore, it is relevant to MongoDB.",
+    rejectMessage: false,
+  } satisfies UserMessageMongoDbGuardrailFunction),
 ];
 
 /**
