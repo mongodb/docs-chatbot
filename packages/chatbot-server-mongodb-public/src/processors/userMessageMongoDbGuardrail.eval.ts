@@ -332,7 +332,7 @@ const evalCases: MongoDbGuardrailEvalCase[] = [
     expected: {
       rejectMessage: false,
       reasoning:
-        "This query what an ODL is, which is an acronym for 'Operational Data Layer'. It is an architectural pattern. Therefore, it is relevant to MongoDB.",
+        "This query what an ODL is, which is an acronym for 'Operational Data Layer'. It is an architectural pattern that can be used with MongoDB. Therefore, it is relevant to MongoDB.",
     },
     tags: ["valid"],
   },
