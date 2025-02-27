@@ -326,6 +326,16 @@ const evalCases: MongoDbGuardrailEvalCase[] = [
     },
     tags: ["irrelevant"],
   },
+  {
+    name: "should answer question about ODL (Operational Data Layer)",
+    input: "What is an ODL?",
+    expected: {
+      rejectMessage: false,
+      reasoning:
+        "This query what an ODL is, which is an acronym for 'Operational Data Layer'. It is an architectural pattern that can be used with MongoDB. Therefore, it is relevant to MongoDB.",
+    },
+    tags: ["valid"],
+  },
 ];
 
 // Simple string based matcher
