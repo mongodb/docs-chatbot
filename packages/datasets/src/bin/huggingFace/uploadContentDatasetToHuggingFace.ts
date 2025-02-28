@@ -4,7 +4,6 @@ import {
   logger,
   makeMongoDbPageStore,
 } from "mongodb-rag-core";
-import { loadPagesDataset } from "../../loadPageDataset";
 import {
   forbiddenUrls,
   publicDatasetSourceName,
@@ -12,6 +11,7 @@ import {
 import { uploadDatasetToHuggingFace } from "../../uploadDatasetToHuggingFace";
 import { HUGGINGFACE } from "../../EnvVars";
 import path from "path";
+import { loadPagesDataset } from "../../pageDataset/loadPageDataset";
 
 async function uploadContentDatasetToHuggingFace() {
   logger.info("Starting upload content dataset to Hugging Face script");

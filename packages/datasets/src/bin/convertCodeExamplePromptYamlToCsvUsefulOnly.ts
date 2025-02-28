@@ -1,7 +1,7 @@
 import { stringify } from "csv";
 import fs from "fs";
 import path from "path";
-import { AugmentedAstExtractedCodeblockWithUtility } from "../AstExtractedCodeBlock.js";
+import { AugmentedAstExtractedCodeblockWithUtility } from "../codeExampleDataset/AstExtractedCodeBlock.js";
 import "dotenv/config";
 import yaml from "yaml";
 

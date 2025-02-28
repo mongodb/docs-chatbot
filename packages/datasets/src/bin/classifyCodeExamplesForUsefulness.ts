@@ -3,11 +3,12 @@
  */
 import fs from "fs";
 import path from "path";
-import { AugmentedAstExtractedCodeblockWithUtility } from "../AstExtractedCodeBlock.js";
+import { AugmentedAstExtractedCodeblockWithUtility } from "../codeExampleDataset/AstExtractedCodeBlock.js";
 import "dotenv/config";
 import yaml from "yaml";
 import { PromisePool } from "@supercharge/promise-pool";
-import { makeClassifyIsUsefulCodeBlockForTraining } from "../classifyIsUsefulCodeBlockForTraining.js";
+import { makeClassifyIsUsefulCodeBlockForTraining } from "../codeExampleDataset/classifyIsUsefulCodeBlockForTraining.js";
+import { openAiClient, model } from "../openAi.js";
 async function main(): Promise<void> {
   const basePath = path.resolve("data");
   const pathOut = path.resolve(
@@ -20,7 +21,10 @@ async function main(): Promise<void> {
   );
 
   const classifyIsUsefulCodeBlockForTraining =
-    makeClassifyIsUsefulCodeBlockForTraining();
+    makeClassifyIsUsefulCodeBlockForTraining({
+      openAiClient,
+      model,
+    });
 
   const codeExamples = yaml.parse(
     fs.readFileSync(codeExamplesPath, "utf-8")

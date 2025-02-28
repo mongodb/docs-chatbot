@@ -3,7 +3,7 @@ import path from "path";
 import {
   makeExtractCodeBlocksWithHeadings,
   makePageParser,
-} from "../extractPageElements.js";
+} from "../codeExampleDataset/extractPageElements.js";
 import { PersistedPage } from "mongodb-rag-core";
 async function main(): Promise<void> {
   const basePath = path.resolve("data");

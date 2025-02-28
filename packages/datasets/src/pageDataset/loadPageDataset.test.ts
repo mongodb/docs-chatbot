@@ -4,7 +4,7 @@ import {
   MongoDbPageStore,
 } from "mongodb-rag-core";
 import { loadPagesDataset } from "./loadPageDataset";
-import { MONGO_MEMORY_SERVER_URI } from "./test/constants";
+import { MONGO_MEMORY_SERVER_URI } from "../test/constants";
 describe("loadPagesDataset", () => {
   let pageStore: MongoDbPageStore;
 

@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import yaml from "yaml";
-import { AugmentedAstExtractedCodeblockWithUtility } from "../AstExtractedCodeBlock.js";
+import { AugmentedAstExtractedCodeblockWithUtility } from "../codeExampleDataset/AstExtractedCodeBlock.js";
 function main() {
   const LEN = 150;
   const basePath = path.resolve("data");

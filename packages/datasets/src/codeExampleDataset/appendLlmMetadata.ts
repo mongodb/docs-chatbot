@@ -1,29 +1,40 @@
+import "dotenv/config";
+import { makeCreatePromptsFromText } from "./createPromptsFromText.js";
+import { PersistedPage } from "mongodb-rag-core";
 import {
   AstExtractedCodeblock,
   AugmentedAstExtractedCodeblock,
 } from "./AstExtractedCodeBlock.js";
-import "dotenv/config";
-import { makeCreatePromptsFromText } from "./createPromptsFromText.js";
-import { contextualizeCodeBlock } from "./contextualizeCodeBlock.js";
 import { makeClassifyCodeExample } from "./classifyCodeExample.js";
-import { PersistedPage } from "mongodb-rag-core";
+import { contextualizeCodeBlock } from "./contextualizeCodeBlock.js";
+import { OpenAI } from "mongodb-rag-core/openai";
 
 export async function appendLlmMetadata({
   pages,
   codeExamples,
   batchSize = 5,
+  openAiClient,
+  model,
 }: {
   pages: PersistedPage[];
   codeExamples: AstExtractedCodeblock[];
   batchSize?: number;
+  openAiClient: OpenAI;
+  model: string;
 }): Promise<AugmentedAstExtractedCodeblock[]> {
   const pagesMap: { [url: string]: PersistedPage } = {};
   for (const page of pages) {
     pagesMap[page.url] = page;
   }
 
-  const createQuestionsFromText = makeCreatePromptsFromText();
-  const classifyCodeExample = await makeClassifyCodeExample();
+  const createQuestionsFromText = makeCreatePromptsFromText({
+    openAiClient,
+    model,
+  });
+  const classifyCodeExample = makeClassifyCodeExample({
+    openAiClient,
+    model,
+  });
 
   const codeBlocksWithPrompts: AugmentedAstExtractedCodeblock[] = [];
 

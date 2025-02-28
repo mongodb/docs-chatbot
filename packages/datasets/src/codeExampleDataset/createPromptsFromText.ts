@@ -1,17 +1,6 @@
-import { AzureOpenAI, OpenAI } from "mongodb-rag-core/openai";
+import { OpenAI } from "mongodb-rag-core/openai";
 import "dotenv/config";
-import { END_SNIPPET, START_SNIPPET } from "./contextualizeCodeBlock.js";
-import {
-  assertEnvVars,
-  CORE_OPENAI_CHAT_COMPLETION_ENV_VARS,
-} from "mongodb-rag-core";
-
-const {
-  OPENAI_API_KEY,
-  OPENAI_ENDPOINT,
-  OPENAI_CHAT_COMPLETION_DEPLOYMENT,
-  OPENAI_API_VERSION,
-} = assertEnvVars(CORE_OPENAI_CHAT_COMPLETION_ENV_VARS);
+import { END_SNIPPET, START_SNIPPET } from "./contextualizeCodeBlock";
 
 export const makePrompt = (
   contextStr: string,
@@ -77,13 +66,13 @@ Prompts: ["delete documents python", "How do I delete a document with Pymongo?",
 Code snippet with context:
 ${contextStr}`;
 
-export function makeCreatePromptsFromText() {
-  const openAiClient = new AzureOpenAI({
-    apiKey: OPENAI_API_KEY,
-    endpoint: OPENAI_ENDPOINT,
-    apiVersion: OPENAI_API_VERSION,
-    maxRetries: 5,
-  });
+export function makeCreatePromptsFromText({
+  openAiClient,
+  model,
+}: {
+  openAiClient: OpenAI;
+  model: string;
+}) {
   return async ({
     text,
     numQuestions = 3,
@@ -92,7 +81,7 @@ export function makeCreatePromptsFromText() {
     numQuestions?: number;
   }) => {
     const result = await openAiClient.chat.completions.create({
-      model: OPENAI_CHAT_COMPLETION_DEPLOYMENT,
+      model,
       messages: [
         {
           role: "system",

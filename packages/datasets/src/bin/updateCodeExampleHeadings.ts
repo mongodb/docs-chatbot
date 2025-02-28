@@ -4,7 +4,7 @@ import fs from "fs";
 import {
   AstExtractedCodeblock,
   AugmentedAstExtractedCodeblock,
-} from "../AstExtractedCodeBlock.js";
+} from "../codeExampleDataset/AstExtractedCodeBlock.js";
 async function main() {
   const basePath = path.resolve("data");
   const withPromptsBasePathsYaml: string[] = [
