@@ -5,7 +5,5 @@ export const BRAINTRUST_ENV_VARS = {
 export const TEXT_TO_DRIVER_ENV_VARS = {
   ...BRAINTRUST_ENV_VARS,
   MONGODB_TEXT_TO_DRIVER_CONNECTION_URI: "",
-  RADIANT_ENDPOINT: "<base_url>/azure",
-  RADIANT_API_KEY: "rad-API_KEY-iant",
   MONGODB_AUTH_COOKIE: "",
 };
