@@ -71,24 +71,6 @@
     - role: user
       content: Does MongoDB support LangGraph checkpointers? If so, are they
         asynchronous or synchronous?
-  reference: An ideal answer will say yes, and give context around what
-    checkpointers are good for. It will continue by telling the user we offer
-    both asynchronous and synchronous options.
-  expectedLinks:
-    - https://github.com/langchain-ai/langgraph/tree/main/libs/checkpoint
-    - https://github.com/langchain-ai/langchain-mongodb/blob/main/libs/langgraph-checkpoint-mongodb/langgraph/checkpoint/mongodb/__init__.py
-    - https://github.com/langchain-ai/langchain-mongodb/blob/main/libs/langgraph-checkpoint-mongodb/langgraph/checkpoint/mongodb/aio.py
-  tags:
-    - web
-- name: How does MongoDB compare to Postgres?
-  messages:
-    - role: user
-      content: How does MongoDB compare to Postgres?
-  reference: Obviously better
-  expectedLinks:
-    - https://www.mongodb.com/resources/compare/mongodb-postgresql
-  tags:
-    - web
 - name: Can I use MongoDB for RAG implementations? How?
   messages:
     - role: user
@@ -334,10 +316,10 @@
     - https://search-playground.mongodb.com/tools/search-demo-builder/snapshots/new
   tags:
     - web
-- name: What is the difference between the tools on Atlas Serach Playground?
+- name: What is the difference between the tools on Atlas Search Playground?
   messages:
     - role: user
-      content: What is the difference between the tools on Atlas Serach Playground?
+      content: What is the difference between the tools on Atlas Search Playground?
   reference: The Search Demo Builder tool lets you quickly explore and test Atlas
     Search features through a visual interface. For greater flexibility, Code
     Sandbox provides advanced customization and hands-on experimentation using
@@ -423,6 +405,7 @@
     - https://docs.google.com/document/d/1lZCG-l0Y7e7crzVHb4MvtQabyLY5Y1Ahx_e8OKxOHE0/edit?tab=t.0#heading=h.m4z4fgczts1p
   tags:
     - web
+    - google docs link
 - name: Is Elasticsearch like MongoDB?
   messages:
     - role: user
@@ -477,6 +460,7 @@
     - https://docs.google.com/document/d/1YIWdSHnXNh-kuJ1OUupde3cX36LrZ1i6_Zlgv05DUsw/edit?tab=t.0
   tags:
     - web
+    - google docs link
 - name: How does the new pricing model of the new Atlas Flex tier ensure more
     predictability compared to previous offerings?
   messages:
@@ -490,6 +474,7 @@
     - https://docs.google.com/document/d/1YIWdSHnXNh-kuJ1OUupde3cX36LrZ1i6_Zlgv05DUsw/edit?tab=t.0
   tags:
     - web
+    - google docs link
 - name: What specific features were not available in the serverless tier that are
     available in the new Atlas Flex tier?
   messages:
@@ -515,6 +500,7 @@
     - https://docs.google.com/document/d/1YIWdSHnXNh-kuJ1OUupde3cX36LrZ1i6_Zlgv05DUsw/edit?tab=t.0
   tags:
     - web
+    - google docs link
 - name: What specific features in the new Atlas Flex tier were unavailable in the
     shared tier?
   messages:
@@ -529,6 +515,7 @@
     - https://docs.google.com/document/d/1YIWdSHnXNh-kuJ1OUupde3cX36LrZ1i6_Zlgv05DUsw/edit?tab=t.0
   tags:
     - web
+    - google docs link
 - name: What are the key differentiators when comparing MongoDB to Azure Data
     Explorer (ADX)?
   messages:
@@ -552,6 +539,7 @@
     - https://learn.microsoft.com/en-us/azure/architecture/data-guide/scenarios/time-series
   tags:
     - web
+    - external link
 - name: How do I build AI applications with MongoDB?
   messages:
     - role: user
@@ -785,16 +773,6 @@
     "
   expectedLinks:
     - https://www.mongodb.com/services/consulting
-  tags:
-    - web
-- name: How many customers user MongoDB?
-  messages:
-    - role: user
-      content: How many customers user MongoDB?
-  reference: More than 52,600 customers have chosen to build the applications of
-    today and tomorrow on MongoDB.
-  expectedLinks:
-    - https://www.mongodb.com/solutions/customer-case-studies
   tags:
     - web
 - name: What are some of the reasons Bendigo and Adelaide chose MongoDB?
