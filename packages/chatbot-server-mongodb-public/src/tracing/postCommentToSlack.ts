@@ -13,6 +13,10 @@ export interface PostCommentToSlackParams {
   conversation: Conversation;
   messageWithCommentId: ObjectId;
   llmAsAJudge: LlmAsAJudge;
+  braintrust?: {
+    orgName: string;
+    projectName: string;
+  };
 }
 export async function postCommentToSlack({
   slackToken,
@@ -20,13 +24,15 @@ export async function postCommentToSlack({
   conversation,
   messageWithCommentId,
   llmAsAJudge,
+  braintrust,
 }: PostCommentToSlackParams) {
   const client = new WebClient(slackToken);
   const builder = await makeSlackMessageText(
     conversation,
     messageWithCommentId,
     slackConversationId,
-    llmAsAJudge
+    llmAsAJudge,
+    braintrust
   );
   const res = await client.chat.postMessage({
     ...builder,
@@ -40,7 +46,11 @@ async function makeSlackMessageText(
   conversation: Conversation,
   messageWithCommentId: ObjectId,
   slackConversationId: string,
-  llmAsAJudge: LlmAsAJudge
+  llmAsAJudge: LlmAsAJudge,
+  braintrust?: {
+    orgName: string;
+    projectName: string;
+  }
 ) {
   const tracingData = extractTracingData(
     conversation.messages,
@@ -64,10 +74,28 @@ async function makeSlackMessageText(
 
   const scores = await getLlmAsAJudgeScores(llmAsAJudge, tracingData);
 
+  const messageId = messageWithCommentId.toHexString();
+  const braintrustLogUrl = braintrust
+    ? makeBraintrustLogUrl({
+        orgName: braintrust.orgName,
+        projectName: braintrust.projectName,
+        traceId: messageId,
+      })
+    : undefined;
+
+  const verifiedAnswerId = isVerifiedAnswer
+    ? assistantMessage.metadata?.verifiedAnswer?._id
+    : null;
+  const verifiedAnswerMd = verifiedAnswerId
+    ? `\n:white_check_mark: ${Md.bold(
+        `Verified Answer:`
+      )} ${verifiedAnswerId}}\n`
+    : "";
+
   const feedbackMd = `${Md.bold(
     rating === true ? "👍 Positive Feedback" : "👎 Negative Feedback"
   )}
-
+${verifiedAnswerMd}
 ${Md.bold("User Comment:")}
 ${userComment}`;
 
@@ -103,9 +131,12 @@ ${Md.listBullet(`Tags: ${tags.map(Md.codeInline).join(", ")}`)}`;
   const idMetadataMd = `Conversation ID: ${Md.codeInline(
     conversation._id.toHexString()
   )}
-Message ID/ Braintrust Trace ID: ${Md.codeInline(
-    messageWithCommentId.toHexString()
-  )}`;
+Message ID: ${Md.codeInline(messageId)}
+${
+  braintrustLogUrl
+    ? `Braintrust Log: ${Md.link(braintrustLogUrl, messageId)}`
+    : ""
+}`;
 
   const scoresMd = `${Md.bold("Scores:")}
 ${
@@ -147,4 +178,16 @@ function extractFeedback(assistantMessage: AssistantMessage) {
     rating: assistantMessage.rating,
     userComment: assistantMessage.userComment,
   };
+}
+
+export function makeBraintrustLogUrl(args: {
+  orgName: string;
+  projectName: string;
+  traceId: string;
+}) {
+  const urlEncodedTraceId = encodeURI(`id = "${args.traceId}"`);
+  const searchFilter = encodeURI(
+    `{"filter":[{"text":"${urlEncodedTraceId}"}]}`
+  );
+  return `https://www.braintrust.dev/app/${args.orgName}/p/${args.projectName}/logs?search=${searchFilter}&r=${args.traceId}`;
 }

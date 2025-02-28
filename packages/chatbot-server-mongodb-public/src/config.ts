@@ -224,7 +224,11 @@ const llmAsAJudgeConfig = {
   },
 };
 
-const { SLACK_BOT_TOKEN, SLACK_COMMENT_CONVERSATION_ID } = process.env;
+const {
+  BRAINTRUST_CHATBOT_TRACING_PROJECT_NAME,
+  SLACK_BOT_TOKEN,
+  SLACK_COMMENT_CONVERSATION_ID,
+} = process.env;
 
 export const config: AppConfig = {
   conversationsRouterConfig: {
@@ -253,6 +257,12 @@ export const config: AppConfig = {
             token: SLACK_BOT_TOKEN,
             conversationId: SLACK_COMMENT_CONVERSATION_ID,
             llmAsAJudge: llmAsAJudgeConfig,
+            braintrust: BRAINTRUST_CHATBOT_TRACING_PROJECT_NAME
+              ? {
+                  orgName: "mongodb-education-ai",
+                  projectName: BRAINTRUST_CHATBOT_TRACING_PROJECT_NAME,
+                }
+              : undefined,
           }
         : undefined
     ),

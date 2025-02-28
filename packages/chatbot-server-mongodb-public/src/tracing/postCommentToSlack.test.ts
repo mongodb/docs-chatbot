@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb-rag-core/mongodb";
-import { postCommentToSlack } from "./postCommentToSlack";
+import { makeBraintrustLogUrl, postCommentToSlack } from "./postCommentToSlack";
 import "dotenv/config";
 describe.skip("postCommentToSlack", () => {
   it("should post message to slack", async () => {
@@ -46,5 +46,18 @@ describe.skip("postCommentToSlack", () => {
         },
       },
     });
+  });
+});
+
+describe("makeBraintrustLogUrl", () => {
+  it("should make a valid braintrust log url", () => {
+    const url = makeBraintrustLogUrl({
+      orgName: "mongodb-education-ai",
+      projectName: "chatbot-responses-prod",
+      traceId: "67c2023c218d1c08ae1cf0ed",
+    });
+    expect(url).toBe(
+      "https://www.braintrust.dev/app/mongodb-education-ai/p/chatbot-responses-prod/logs?search=%7B%22filter%22:%5B%7B%22text%22:%22id%2520=%2520%252267c2023c218d1c08ae1cf0ed%2522%22%7D%5D%7D&r=67c2023c218d1c08ae1cf0ed"
+    );
   });
 });
