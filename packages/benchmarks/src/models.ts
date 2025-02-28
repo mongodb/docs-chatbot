@@ -4,14 +4,11 @@ export type ModelDeveloper =
   | "Meta"
   | "Google"
   | "Mistral"
-  | "Amazon";
+  | "Amazon"
+  | "DeepSeek"
+  | "Alibaba Cloud";
 
-export type ModelProvider =
-  | "radiant"
-  | "braintrust"
-  | "azure_openai"
-  | "aws_bedrock"
-  | "gcp_vertex_ai";
+export type ModelProvider = "braintrust" | "azure_openai" | "gcp_vertex_ai";
 
 export interface ModelConfig {
   /**
@@ -52,33 +49,27 @@ export interface ModelConfig {
   metadata?: Record<string, unknown>;
 
   /**
-    Whether to include the system message as a user message in the model call.
-    Needed for some models that don't support system messages.
-    Recasts the system message as a user message with the following tags:
-    ```jsx
-    <System_Message>
-    ${systemMessageContent}
-    </System_Message>
-    ```
-   */
-  systemMessageAsUserMessage?: boolean;
-
-  /**
     Whether the model is officially authorized by MongoDB.
    */
   authorized?: boolean;
 }
 
 /**
-  List of LLMs that are available through Radiant.
+  List of available LLMs, both officially sanctioned by MongoDB
+  and not-officially authorized for internal use.
+
+  General rules of thumb on authorization:
+
+  1. The hyperscalers are authorized (AWS, GCP, Azure)
+  2. Assume all other model providers are unauthorized unless you explicitly know otherwise.
  */
-export const models: ModelConfig[] = [
+const allModels: ModelConfig[] = [
   {
     label: "gpt-4o",
     deployment: "gpt-4o",
     developer: "OpenAI",
     maxConcurrency: 2,
-    provider: "azure_openai",
+    provider: "braintrust",
     metadata: {
       modelVersion: "2024-08-06",
       rateLimitTpm: 110000,
@@ -90,7 +81,7 @@ export const models: ModelConfig[] = [
     deployment: "gpt-4o-mini",
     developer: "OpenAI",
     maxConcurrency: 5,
-    provider: "azure_openai",
+    provider: "braintrust",
     metadata: {
       modelVersion: "2024-07-18",
       rateLimitTpm: 4070000,
@@ -102,7 +93,7 @@ export const models: ModelConfig[] = [
     deployment: "gpt-35-turbo-16k",
     developer: "OpenAI",
     maxConcurrency: 1,
-    provider: "azure_openai",
+    provider: "braintrust",
     metadata: {
       rateLimitTpm: 70000,
       modelVersion: "0613",
@@ -115,7 +106,7 @@ export const models: ModelConfig[] = [
     deployment: "us.anthropic.claude-3-sonnet-20240229-v1:0",
     developer: "Anthropic",
     maxConcurrency: 1,
-    provider: "aws_bedrock",
+    provider: "braintrust",
     authorized: true,
   },
   {
@@ -123,7 +114,7 @@ export const models: ModelConfig[] = [
     deployment: "us.anthropic.claude-3-haiku-20240307-v1:0",
     developer: "Anthropic",
     maxConcurrency: 3,
-    provider: "aws_bedrock",
+    provider: "braintrust",
     authorized: true,
   },
   {
@@ -131,7 +122,7 @@ export const models: ModelConfig[] = [
     deployment: "us.anthropic.claude-3-5-sonnet-20240620-v1:0",
     developer: "Anthropic",
     maxConcurrency: 1,
-    provider: "aws_bedrock",
+    provider: "braintrust",
     authorized: true,
   },
   {
@@ -139,7 +130,7 @@ export const models: ModelConfig[] = [
     deployment: "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
     developer: "Anthropic",
     maxConcurrency: 1,
-    provider: "aws_bedrock",
+    provider: "braintrust",
     authorized: true,
   },
   {
@@ -147,7 +138,7 @@ export const models: ModelConfig[] = [
     deployment: "us.anthropic.claude-3-5-haiku-20241022-v1:0",
     developer: "Anthropic",
     maxConcurrency: 5,
-    provider: "aws_bedrock",
+    provider: "braintrust",
     authorized: true,
   },
   {
@@ -155,7 +146,7 @@ export const models: ModelConfig[] = [
     deployment: "meta.llama3-70b-instruct-v1:0",
     developer: "Meta",
     maxConcurrency: 1,
-    provider: "aws_bedrock",
+    provider: "braintrust",
     authorized: true,
   },
   {
@@ -163,7 +154,7 @@ export const models: ModelConfig[] = [
     deployment: "mistral.mistral-large-2402-v1:0",
     developer: "Mistral",
     maxConcurrency: 1,
-    provider: "aws_bedrock",
+    provider: "braintrust",
     authorized: true,
   },
   {
@@ -171,7 +162,7 @@ export const models: ModelConfig[] = [
     deployment: "us.meta.llama3-1-70b-instruct-v1:0",
     developer: "Meta",
     maxConcurrency: 1,
-    provider: "aws_bedrock",
+    provider: "braintrust",
     authorized: true,
   },
   {
@@ -179,14 +170,22 @@ export const models: ModelConfig[] = [
     deployment: "us.meta.llama3-2-90b-instruct-v1:0",
     developer: "Meta",
     maxConcurrency: 1,
-    provider: "aws_bedrock",
+    provider: "braintrust",
+    authorized: true,
+  },
+  {
+    label: "llama-3.3-70b",
+    deployment: "us.meta.llama3-3-70b-instruct-v1:0",
+    developer: "Meta",
+    maxConcurrency: 5,
+    provider: "braintrust",
     authorized: true,
   },
   {
     label: "nova-lite-v1:0",
     deployment: "amazon.nova-lite-v1:0",
     developer: "Amazon",
-    provider: "aws_bedrock",
+    provider: "braintrust",
     maxConcurrency: 3,
     authorized: true,
   },
@@ -194,7 +193,7 @@ export const models: ModelConfig[] = [
     label: "nova-micro-v1:0",
     deployment: "amazon.nova-micro-v1:0",
     developer: "Amazon",
-    provider: "aws_bedrock",
+    provider: "braintrust",
     maxConcurrency: 3,
     authorized: true,
   },
@@ -202,21 +201,16 @@ export const models: ModelConfig[] = [
     label: "nova-pro-v1:0",
     deployment: "amazon.nova-pro-v1:0",
     developer: "Amazon",
-    provider: "aws_bedrock",
+    provider: "braintrust",
     maxConcurrency: 1,
     authorized: true,
   },
-  // Note: not available in Bedrock (yet?)
   {
-    label: "llama-3.1-405b",
-    deployment: "accounts/fireworks/models/llama-v3p1-405b-instruct",
-    developer: "Meta",
-    maxConcurrency: 1,
+    label: "o3-mini",
+    deployment: "o3-mini",
+    developer: "OpenAI",
     provider: "braintrust",
-    metadata: {
-      modelHost: "Fireworks",
-    },
-    authorized: false,
+    authorized: true,
   },
   {
     label: "gemini-1.5-flash-002",
@@ -224,7 +218,6 @@ export const models: ModelConfig[] = [
     developer: "Google",
     maxConcurrency: 3,
     provider: "gcp_vertex_ai",
-    systemMessageAsUserMessage: false,
     authorized: true,
   },
   {
@@ -233,7 +226,6 @@ export const models: ModelConfig[] = [
     developer: "Google",
     maxConcurrency: 3,
     provider: "gcp_vertex_ai",
-    systemMessageAsUserMessage: false,
     authorized: true,
   },
   {
@@ -242,7 +234,6 @@ export const models: ModelConfig[] = [
     developer: "Google",
     provider: "gcp_vertex_ai",
     maxConcurrency: 1,
-    systemMessageAsUserMessage: false,
     authorized: true,
   },
   {
@@ -251,7 +242,47 @@ export const models: ModelConfig[] = [
     developer: "Google",
     provider: "gcp_vertex_ai",
     maxConcurrency: 1,
-    systemMessageAsUserMessage: false,
     authorized: true,
   },
+  {
+    label: "deepseek-r1",
+    deployment: "accounts/fireworks/models/deepseek-r1",
+    developer: "DeepSeek",
+    provider: "braintrust",
+    authorized: false,
+    maxConcurrency: 5,
+    metadata: {
+      host: "Fireworks",
+    },
+  },
+  {
+    label: "mistral-small-3-instruct",
+    deployment: "accounts/fireworks/models/mistral-small-24b-instruct-2501",
+    developer: "Mistral",
+    provider: "braintrust",
+    authorized: false,
+    maxConcurrency: 5,
+    metadata: {
+      host: "Fireworks",
+    },
+  },
+  {
+    label: "qwen-2.5-72b-instruct",
+    deployment: "accounts/fireworks/models/qwen2p5-72b-instruct",
+    developer: "Alibaba Cloud",
+    provider: "braintrust",
+    authorized: false,
+    maxConcurrency: 5,
+    metadata: {
+      host: "Fireworks",
+    },
+  },
 ] as const;
+
+export const models = allModels.filter((m) => m.authorized);
+
+/**
+  These models aren't officially authorized to be used.
+  NEVER use on sensitive information.
+ */
+export const __unauthorizedModels__ = allModels.filter((m) => !m.authorized);

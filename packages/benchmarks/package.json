@@ -47,7 +47,6 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@aws-sdk/client-bedrock-runtime": "^3.705.0",
     "@supercharge/promise-pool": "^3.2.0",
     "dotenv": "^16",
     "mongodb-chatbot-server": "*",
