@@ -9,7 +9,7 @@ import {
   publicDatasetSourceName,
 } from "../../mongoDbDatasetConstants";
 import { uploadDatasetToHuggingFace } from "../../uploadDatasetToHuggingFace";
-import { HUGGINGFACE } from "../../EnvVars";
+import { HUGGINGFACE, HUGGINGFACE_DOCS_CONTENT } from "../../EnvVars";
 import path from "path";
 import { loadPagesDataset } from "../../pageDataset/loadPageDataset";
 
@@ -21,7 +21,11 @@ async function uploadContentDatasetToHuggingFace() {
     HUGGINGFACE_DOCS_CONTENT_REPO,
     MONGODB_CONNECTION_URI,
     MONGODB_DATABASE_NAME,
-  } = assertEnvVars({ ...HUGGINGFACE, ...CORE_CHATBOT_APP_ENV_VARS });
+  } = assertEnvVars({
+    ...HUGGINGFACE,
+    ...CORE_CHATBOT_APP_ENV_VARS,
+    ...HUGGINGFACE_DOCS_CONTENT,
+  });
 
   const pageStore = makeMongoDbPageStore({
     connectionUri: MONGODB_CONNECTION_URI,

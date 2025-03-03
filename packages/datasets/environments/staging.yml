@@ -1,0 +1,49 @@
+image:
+  repository: node
+  tag: 18
+
+cronJobs:
+  - name: upload-content-dataset
+    schedule: "0 6 * * 6" # every Saturday at 6am UTC (1AM EST)
+    command: ["npm", "run", "uploadContentDatasetToHuggingFace"]
+    env:
+      MONGODB_DATABASE_NAME: docs-chatbot-staging
+      HUGGINGFACE_DOCS_CONTENT_REPO: mongodb-eai/test_integration
+    envSecrets:
+      MONGODB_CONNECTION_URI: docs-chatbot-staging
+      # TODO: add this to k8s
+      HUGGINGFACE_ACCESS_TOKEN: docs-chatbot-staging
+    resources:
+      # guaranteed amount of resources
+      requests:
+        cpu: 100m
+        memory: 2Gi
+      # maximum allowed resources
+      limits:
+        cpu: 500m
+        memory: 5Gi
+    backoffLimit: 3
+
+  - name: upload-code-example-dataset
+    schedule: "0 0 31 2 *" # Never runs, b.c February 31 doesn't exist. Must trigger manually
+    command: ["npm", "run", "uploadCodeExampleDatasetToHuggingFace"]
+    env:
+      MONGODB_DATABASE_NAME: docs-chatbot-staging
+      OPENAI_API_VERSION: "2024-06-01"
+      HUGGINGFACE_DOCS_CODE_EXAMPLES_REPO: mongodb-eai/test_integration
+      OPENAI_CHAT_COMPLETION_DEPLOYMENT: gpt-4o-mini
+    envSecrets:
+      MONGODB_CONNECTION_URI: docs-chatbot-staging
+      HUGGINGFACE_ACCESS_TOKEN: docs-chatbot-staging
+      OPENAI_ENDPOINT: docs-chatbot-staging
+      OPENAI_API_KEY: docs-chatbot-staging
+    resources:
+      # guaranteed amount of resources
+      requests:
+        cpu: 100m
+        memory: 2Gi
+      # maximum allowed resources
+      limits:
+        cpu: 500m
+        memory: 5Gi
+    backoffLimit: 3

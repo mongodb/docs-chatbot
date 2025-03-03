@@ -1,9 +1,11 @@
+import "dotenv/config";
 import {
   assertEnvVars,
   CORE_CHATBOT_APP_ENV_VARS,
   logger,
   makeMongoDbPageStore,
   makeMongoDbTransformedContentStore,
+  PersistedPage,
   updateTransformedContent,
 } from "mongodb-rag-core";
 import {
@@ -11,21 +13,26 @@ import {
   publicDatasetSourceName,
 } from "../../mongoDbDatasetConstants";
 import { uploadDatasetToHuggingFace } from "../../uploadDatasetToHuggingFace";
-import { HUGGINGFACE } from "../../EnvVars";
+import { HUGGINGFACE, HUGGINGFACE_DOCS_CODE_EXAMPLES } from "../../EnvVars";
 import path from "path";
 import { makeTranformPageToAnnotatedCodeExamples } from "../../codeExampleDataset/transformPageToAnnotatedCodeExamples";
 import { model, openAiClient } from "../../openAi";
 import { CodeExampleDatasetEntry } from "../../codeExampleDataset/createCodeExampleDatasetEntry";
+import { Filter } from "mongodb-rag-core/mongodb";
 
 async function uploadCodeExampleDatasetToHuggingFace() {
   logger.info("Staring upload code example dataset to Hugging Face script");
 
   const {
     HUGGINGFACE_ACCESS_TOKEN,
-    HUGGINGFACE_DOCS_CODE_EXAMPLE_REPO,
+    HUGGINGFACE_DOCS_CODE_EXAMPLES_REPO,
     MONGODB_CONNECTION_URI,
     MONGODB_DATABASE_NAME,
-  } = assertEnvVars({ ...HUGGINGFACE, ...CORE_CHATBOT_APP_ENV_VARS });
+  } = assertEnvVars({
+    ...HUGGINGFACE,
+    ...CORE_CHATBOT_APP_ENV_VARS,
+    ...HUGGINGFACE_DOCS_CODE_EXAMPLES,
+  });
 
   const pageStore = makeMongoDbPageStore({
     connectionUri: MONGODB_CONNECTION_URI,
@@ -48,14 +55,10 @@ async function uploadCodeExampleDatasetToHuggingFace() {
   );
   try {
     const pages = await pageStore.loadPages({
-      query: {
-        sourceName: publicDatasetSourceName,
-        url: {
-          $not: {
-            $in: Array.from(forbiddenUrls),
-          },
-        },
-      },
+      query: makeLoadPagesFilter(
+        publicDatasetSourceName,
+        Array.from(forbiddenUrls)
+      ),
     });
     logger.info(`Loaded pages from MongoDB. Loaded ${pages.length} pages.`);
 
@@ -80,12 +83,12 @@ async function uploadCodeExampleDatasetToHuggingFace() {
     const fileBaseName = "public-code-examples";
 
     logger.info(
-      `Uploading dataset to Hugging Face repo '${HUGGINGFACE_DOCS_CODE_EXAMPLE_REPO}'`
+      `Uploading dataset to Hugging Face repo '${HUGGINGFACE_DOCS_CODE_EXAMPLES_REPO}'`
     );
 
     const res = await uploadDatasetToHuggingFace({
       huggingFace: {
-        repoName: HUGGINGFACE_DOCS_CODE_EXAMPLE_REPO,
+        repoName: HUGGINGFACE_DOCS_CODE_EXAMPLES_REPO,
         accessToken: HUGGINGFACE_ACCESS_TOKEN,
       },
       commit: {
@@ -103,7 +106,7 @@ async function uploadCodeExampleDatasetToHuggingFace() {
       ],
     });
     logger.info(
-      `Uploaded dataset to Hugging Face repo '${HUGGINGFACE_DOCS_CODE_EXAMPLE_REPO}'`
+      `Uploaded dataset to Hugging Face repo '${HUGGINGFACE_DOCS_CODE_EXAMPLES_REPO}'`
     );
     logger.info(res);
   } finally {
@@ -115,3 +118,14 @@ async function uploadCodeExampleDatasetToHuggingFace() {
   }
 }
 uploadCodeExampleDatasetToHuggingFace();
+
+function makeLoadPagesFilter(
+  publicDatasetSourceName: RegExp,
+  forbiddenUrls: string[]
+): Filter<PersistedPage> {
+  return {
+    sourceName: publicDatasetSourceName,
+    url: { $nin: forbiddenUrls },
+    action: { $ne: "deleted" },
+  };
+}

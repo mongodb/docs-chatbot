@@ -179,7 +179,7 @@ export function makeClassifyCodeExample({
     text,
   }: {
     text: string;
-  }): Promise<ClassificationTypeMetadata["type"]> {
+  }): Promise<ClassificationType["type"]> {
     const result = await openAiClient.chat.completions.create({
       messages: [
         {

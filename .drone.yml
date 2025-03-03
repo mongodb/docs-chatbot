@@ -149,7 +149,7 @@ trigger:
 
 steps:
   # Deploys docker image associated with staging build that triggered promotion
-  - name: deploy-staging-chat-server
+  - name: deploy-staging-chatbot-server
     image: quay.io/mongodb/drone-helm:v3
     settings:
       chart: mongodb/web-app
@@ -237,7 +237,8 @@ steps:
       namespace: docs
       release: chat-server-qa
       values: image.tag=git-${DRONE_COMMIT_SHA:0:7}-qa,image.repository=795250896452.dkr.ecr.us-east-1.amazonaws.com/docs/${DRONE_REPO_NAME}-chat-server,ingress.enabled=true,ingress.hosts[0]=chat-qa.docs.staging.corp.mongodb.com
-      values_files: ["packages/mongodb-chatbot-server/environments/qa.yml"]
+      values_files:
+        ["packages/mongodb-chatbot-server/environments/qa.yml"]
       api_server: https://api.staging.corp.mongodb.com
       kubernetes_token:
         from_secret: staging_kubernetes_token
@@ -963,3 +964,128 @@ steps:
       api_server: https://api.prod.corp.mongodb.com
       kubernetes_token:
         from_secret: prod_kubernetes_token
+
+# ---
+# Datasets service
+# ---
+---
+depends_on: ["test-all"]
+kind: pipeline
+type: kubernetes
+name: staging-build-datasets-service
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
+  paths:
+    include:
+      - packages/datasets/**/*
+      - packages/mongodb-rag-core/**/*
+      - package-lock.json
+      - package.json
+
+steps:
+  # Builds and publishes Docker image for staging
+  - name: publish-staging-datasets-service
+    image: plugins/kaniko-ecr
+    settings:
+      dockerfile: datasets.dockerfile
+      create_repository: true
+      registry: 795250896452.dkr.ecr.us-east-1.amazonaws.com
+      repo: docs/${DRONE_REPO_NAME}-datasets-service
+      tags:
+        - git-${DRONE_COMMIT_SHA:0:7}-staging
+        - latest-staging
+      access_key:
+        from_secret: ecr_access_key
+      secret_key:
+        from_secret: ecr_secret_key
+
+  # Promotes current drone build to staging environment
+  - name: promote-staging-datasets-service
+    image: drone/cli:1.4.0-alpine
+    commands:
+      - drone build promote mongodb/chatbot ${DRONE_BUILD_NUMBER} staging
+    environment:
+      DRONE_SERVER: ${DRONE_SYSTEM_PROTO}://${DRONE_SYSTEM_HOST}
+      DRONE_TOKEN:
+        from_secret: drone_token
+
+---
+kind: pipeline
+type: kubernetes
+name: staging-deploy-datasets-service
+
+trigger:
+  event:
+    - promote
+  target:
+    - staging
+  paths:
+    include:
+      - packages/datasets/**/*
+      - packages/mongodb-rag-core/**/*
+      - package-lock.json
+      - package.json
+
+  branch:
+    - main
+
+steps:
+  # Deploys docker image associated with staging build that triggered promotion
+  - name: deploy-staging-datasets-service
+    image: quay.io/mongodb/drone-helm:v3
+    settings:
+      chart: mongodb/cronjobs
+      chart_version: 1.10.0
+      add_repos: [mongodb=https://10gen.github.io/helm-charts]
+      namespace: docs
+      release: datasets-service
+      values: image.tag=git-${DRONE_COMMIT_SHA:0:7}-staging,image.repository=795250896452.dkr.ecr.us-east-1.amazonaws.com/docs/${DRONE_REPO_NAME}-datasets-service
+      values_files:
+        - packages/datasets/environments/staging.yml
+      api_server: https://api.staging.corp.mongodb.com
+      kubernetes_token:
+        from_secret: staging_kubernetes_token
+
+---
+depends_on: ["test-all"]
+kind: pipeline
+type: kubernetes
+name: production-build-datasets-service
+
+trigger:
+  event:
+    - tag
+  ref:
+    include:
+      - refs/tags/datasets-v*
+
+steps:
+  # Builds and publishes Docker image for production
+  - name: publish-production-datasets-service
+    image: plugins/kaniko-ecr
+    settings:
+      dockerfile: datasets.dockerfile
+      create_repository: true
+      registry: 795250896452.dkr.ecr.us-east-1.amazonaws.com
+      repo: docs/${DRONE_REPO_NAME}-datasets-service
+      tags:
+        - git-${DRONE_COMMIT_SHA:0:7}-production
+        - ${DRONE_TAG}
+      access_key:
+        from_secret: ecr_access_key
+      secret_key:
+        from_secret: ecr_secret_key
+
+  # Promotes current drone build to production environment
+  - name: promote-production-datasets-service
+    image: drone/cli:1.4.0-alpine
+    commands:
+      - drone build promote mongodb/chatbot ${DRONE_BUILD_NUMBER} production
+    environment:
+      DRONE_SERVER: ${DRONE_SYSTEM_PROTO}://${DRONE_SYSTEM_HOST}
+      DRONE_TOKEN:
+        from_secret: drone_token
