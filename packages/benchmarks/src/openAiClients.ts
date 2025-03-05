@@ -1,6 +1,9 @@
-import { assertEnvVars } from "mongodb-rag-core";
-import { BRAINTRUST_ENV_VARS, GCP_VERTEX_AI_ENV_VARS } from "./envVars";
-import { makeOpenAiClientFactory } from "./makeOpenAiClientFactory";
+import {
+  assertEnvVars,
+  BRAINTRUST_ENV_VARS,
+  GCP_VERTEX_AI_ENV_VARS,
+} from "mongodb-rag-core";
+import { makeOpenAiClientFactory } from "mongodb-rag-core/models";
 
 const {
   BRAINTRUST_API_KEY,

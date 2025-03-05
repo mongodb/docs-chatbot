@@ -1,0 +1,96 @@
+name: sample_geospatial
+description: The 'sample_geospatial' database is designed to store and manage
+  geospatial data related to shipwrecks. It provides detailed information about
+  various shipwrecks, including their location, type, and historical context.
+  The database is optimized for geospatial queries, allowing users to
+  efficiently search and analyze shipwreck data based on geographic coordinates.
+latestDate:
+  $date: 2025-03-04T21:41:01.919Z
+collections:
+  - name: shipwrecks
+    description: The 'shipwrecks' collection stores detailed information about
+      shipwrecks, including their geographic location, type, and historical
+      details. Each document in the collection represents a specific shipwreck,
+      identified by its unique ID. Key fields include 'feature_type' for the
+      type of wreck, 'coordinates' for geospatial data, and 'history' for
+      historical context. The collection is crucial for geospatial analysis,
+      with a 2dsphere index on the 'coordinates' field to support efficient
+      geospatial queries. This collection serves as the primary data source for
+      understanding and analyzing shipwrecks within the database.
+    schema: >-
+      interface Shipwrecks {
+        _id: ObjectId; // Unique identifier for each shipwreck document
+        recrd: string; // Record identifier or description
+        vesslterms: string; // Terms related to the vessel
+        feature_type: string; // Type of feature, e.g., 'Wrecks - Submerged, dangerous'
+        chart: string; // Chart information, possibly indicating the source or reference
+        latdec: number; // Latitude in decimal degrees
+        londec: number; // Longitude in decimal degrees
+        gp_quality: string; // Quality of the GPS data
+        depth: number; // Depth of the wreck
+        sounding_type: string; // Type of sounding used to determine depth
+        history: string; // Historical information about the wreck
+        quasou: string; // Qualitative sounding information
+        watlev: string; // Water level information, e.g., 'always under water/submerged'
+        coordinates: number[]; // Geospatial coordinates [longitude, latitude]
+        hash: Long; // Hash value for the document, possibly for integrity or indexing
+      }
+    examples:
+      - _id:
+          $oid: 578f6fa3df35c7fbdbaf0030
+        recrd: ""
+        vesslterms: ""
+        feature_type: Wrecks - Submerged, dangerous
+        chart: US,US,graph,Chart 14909
+        latdec: 45.4831299
+        londec: -86.6652573
+        gp_quality: ""
+        depth: 0
+        sounding_type: ""
+        history: reported 1995
+        quasou: ""
+        watlev: always under water/submerged
+        coordinates:
+          - -86.6652573
+          - 45.4831299
+        hash:
+          low: -2107336865
+          high: -2147333520
+          unsigned: false
+      - _id:
+          $oid: 578f6fa3df35c7fbdbaede5b
+        recrd: ""
+        vesslterms: ""
+        feature_type: Wrecks - Visible
+        chart: US,US,reprt,L-589/05
+        latdec: 28.1433333
+        londec: -80.6035
+        gp_quality: ""
+        depth: 0
+        sounding_type: ""
+        history: ""
+        quasou: ""
+        watlev: covers and uncovers
+        coordinates:
+          - -80.6035
+          - 28.1433333
+        hash:
+          low: -1616173260
+          high: -2147184469
+          unsigned: false
+    indexes:
+      - v: 2
+        key:
+          _id: 1
+        name: _id_
+        description: Index on the '_id' field, providing efficient access to documents
+          by their unique identifier.
+      - v: 2
+        key:
+          coordinates: 2dsphere
+        name: coordinates_2dsphere
+        background: true
+        2dsphereIndexVersion: 3
+        description: 2dsphere index on the 'coordinates' field, enabling geospatial
+          queries. Useful for finding shipwrecks within a certain area or
+          radius.

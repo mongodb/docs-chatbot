@@ -1,0 +1,172 @@
+name: sample_supplies
+description: The 'sample_supplies' database is designed to manage and analyze
+  sales data for a retail business. It captures detailed information about each
+  sale, including the items sold, customer demographics, store location, and
+  purchase methods. This database is essential for understanding sales trends,
+  customer behavior, and inventory management.
+latestDate:
+  $date: 2025-03-04T21:40:01.112Z
+collections:
+  - name: sales
+    description: The 'sales' collection stores detailed records of each sale
+      transaction. It includes information about the sale date, items purchased,
+      store location, customer demographics, and purchase method. This
+      collection is crucial for analyzing sales performance, customer
+      satisfaction, and the effectiveness of marketing strategies. It also helps
+      in tracking inventory levels and understanding customer preferences.
+    schema: >-
+      interface Sales {
+        /**
+         * Unique identifier for the sale.
+         */
+        _id: ObjectId;
+        /**
+         * Date and time when the sale was made.
+         */
+        saleDate: Date;
+        /**
+         * List of items included in the sale.
+         */
+        items: Array<{
+          /**
+           * Name of the item.
+           */
+          name: string;
+          /**
+           * Tags associated with the item, useful for categorization.
+           */
+          tags: string[];
+          /**
+           * Price of the item.
+           */
+          price: Decimal128;
+          /**
+           * Quantity of the item sold.
+           */
+          quantity: number;
+        }>;
+        /**
+         * Location of the store where the sale was made.
+         */
+        storeLocation: string;
+        /**
+         * Information about the customer who made the purchase.
+         */
+        customer: {
+          /**
+           * Gender of the customer.
+           */
+          gender: string;
+          /**
+           * Age of the customer.
+           */
+          age: number;
+          /**
+           * Email address of the customer.
+           */
+          email: string;
+          /**
+           * Customer's satisfaction rating for the purchase.
+           */
+          satisfaction: number;
+        };
+        /**
+         * Indicates whether a coupon was used in the sale.
+         */
+        couponUsed: boolean;
+        /**
+         * Method used to make the purchase, e.g., online or in-store.
+         */
+        purchaseMethod: string;
+        /**
+         * Hash value for the sale, possibly used for data integrity or quick lookup.
+         */
+        hash: Long;
+      }
+    examples:
+      - _id:
+          $oid: 5bd761ddae323e45a93cd590
+        saleDate:
+          $date: 2016-01-03T07:18:22.644Z
+        items:
+          - name: pens
+            tags:
+              - writing
+              - office
+              - school
+              - ...and 1 more items
+            price: "[Object]"
+            quantity: 3
+          - name: laptop
+            tags:
+              - electronics
+              - school
+              - office
+            price: "[Object]"
+            quantity: 3
+          - name: notepad
+            tags:
+              - office
+              - writing
+              - school
+            price: "[Object]"
+            quantity: 2
+          - ...and 5 more items
+        storeLocation: Denver
+        customer:
+          gender: M
+          age: 57
+          email: ce@jucvavih.tj
+          satisfaction: 5
+        couponUsed: true
+        purchaseMethod: In store
+        hash:
+          low: 1821832792
+          high: -2146986034
+          unsigned: false
+      - _id:
+          $oid: 5bd761deae323e45a93ce064
+        saleDate:
+          $date: 2017-08-24T08:56:18.079Z
+        items:
+          - name: binder
+            tags:
+              - school
+              - general
+              - organization
+            price: "[Object]"
+            quantity: 1
+          - name: envelopes
+            tags:
+              - stationary
+              - office
+              - general
+            price: "[Object]"
+            quantity: 6
+          - name: envelopes
+            tags:
+              - stationary
+              - office
+              - general
+            price: "[Object]"
+            quantity: 1
+          - ...and 7 more items
+        storeLocation: Austin
+        customer:
+          gender: M
+          age: 45
+          email: huecu@huffadce.ky
+          satisfaction: 1
+        couponUsed: false
+        purchaseMethod: In store
+        hash:
+          low: 1867217522
+          high: -2143180348
+          unsigned: false
+    indexes:
+      - v: 2
+        key:
+          _id: 1
+        name: _id_
+        description: Index on the _id field, which ensures each document has a unique
+          identifier and allows for efficient lookups by _id.

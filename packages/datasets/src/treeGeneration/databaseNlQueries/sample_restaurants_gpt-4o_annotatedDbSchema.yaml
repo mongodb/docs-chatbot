@@ -1,0 +1,170 @@
+name: sample_restaurants
+description: The 'sample_restaurants' database is designed to store and manage
+  information about restaurants and their geographical locations within various
+  neighborhoods. It serves as a resource for analyzing restaurant data,
+  including their addresses, cuisines, health inspection grades, and their
+  spatial relationship to neighborhoods.
+latestDate:
+  $date: 2025-03-04T21:41:18.857Z
+collections:
+  - name: restaurants
+    description: The 'neighborhoods' collection stores geographical data about
+      different neighborhoods, including their names and spatial boundaries
+      defined by coordinates. This collection is fundamental for spatial queries
+      and understanding the geographical context of restaurants.
+    schema: >-
+      interface Restaurant {
+        _id: ObjectId; // Unique identifier for the restaurant document
+        address: {
+          building: string; // Building number of the restaurant's address
+          coord: number[]; // Coordinates (longitude, latitude) of the restaurant's location
+          street: string; // Street name of the restaurant's address
+          zipcode: string; // Zip code of the restaurant's address
+        };
+        borough: string; // Borough where the restaurant is located
+        cuisine: string; // Type of cuisine the restaurant serves
+        grades: {
+          date: Date; // Date when the grade was given
+          grade: string; // Grade received by the restaurant
+          score: number; // Score associated with the grade
+        }[]; // Array of grades received by the restaurant
+        name: string; // Name of the restaurant
+        restaurant_id: string; // Unique identifier for the restaurant
+        hash: Long; // Hash value for internal use or indexing
+      }
+    examples:
+      - _id:
+          $oid: 5eb3d669b31de5d588f451d5
+        address:
+          building: "4942"
+          coord:
+            - -73.920869
+            - 40.8676319
+          street: Broadway
+          zipcode: "10034"
+        borough: Manhattan
+        cuisine: Pizza
+        grades:
+          - date:
+              $date: 2014-12-31T00:00:00Z
+            grade: A
+            score: 9
+          - date:
+              $date: 2014-05-22T00:00:00Z
+            grade: B
+            score: 19
+          - date:
+              $date: 2013-10-22T00:00:00Z
+            grade: A
+            score: 11
+          - ...and 2 more items
+        name: Pizza Haven
+        restaurant_id: "41436770"
+        hash:
+          low: 2016587041
+          high: -2147119159
+          unsigned: false
+      - _id:
+          $oid: 5eb3d668b31de5d588f4482d
+        address:
+          building: 96-38
+          coord:
+            - -73.8664015
+            - 40.7425916
+          street: Corona Avenue
+          zipcode: "11368"
+        borough: Queens
+        cuisine: Latin (Cuban, Dominican, Puerto Rican, South & Central American)
+        grades:
+          - date:
+              $date: 2014-06-11T00:00:00Z
+            grade: A
+            score: 8
+          - date:
+              $date: 2014-01-09T00:00:00Z
+            grade: C
+            score: 33
+          - date:
+              $date: 2013-06-11T00:00:00Z
+            grade: A
+            score: 12
+          - ...and 2 more items
+        name: Amanecer Latino Restaurant
+        restaurant_id: "41300619"
+        hash:
+          low: -1513286962
+          high: -2147083981
+          unsigned: false
+    indexes:
+      - v: 2
+        key:
+          _id: 1
+        name: _id_
+        description: Index on the '_id' field, which ensures each document has a unique
+          identifier and allows for efficient lookups by '_id'.
+  - name: neighborhoods
+    description: The 'restaurants' collection contains detailed information about
+      individual restaurants, such as their names, addresses, types of cuisine,
+      and health inspection grades. It plays a central role in the database by
+      providing the primary data about restaurants, which can be analyzed in
+      conjunction with neighborhood data to gain insights into restaurant
+      distribution and performance across different areas.
+    schema: >-
+      interface Neighborhood {
+        _id: ObjectId; // Unique identifier for each neighborhood document
+        geometry: {
+          coordinates: number[][][]; // Array of coordinates defining the neighborhood's boundaries, can be a Polygon or MultiPolygon
+          type: string; // Type of geometry, typically 'Polygon' or 'MultiPolygon'
+        };
+        name: string; // Name of the neighborhood
+        hash: Long; // Hash value for the neighborhood, possibly used for quick comparisons or indexing
+      }
+    examples:
+      - _id:
+          $oid: 55cb9c666c522cafdb053a4e
+        geometry:
+          coordinates:
+            - - - -73.9838238729819
+                - 40.7214728720669
+              - - -73.98386422812362
+                - 40.72139637813688
+              - - -73.9844773170908
+                - 40.72023423864921
+              - ...and 175 more items
+          type: Polygon
+        name: Chinatown
+        hash:
+          low: -1904453250
+          high: -2143562068
+          unsigned: false
+      - _id:
+          $oid: 55cb9c666c522cafdb053abc
+        geometry:
+          coordinates:
+            - - - - -73.85442575253663
+                  - 40.748851726884496
+                - - -73.85436928066459
+                  - 40.748738930190946
+                - - -73.85405453298718
+                  - 40.748158316947894
+                - ...and 79 more items
+            - - - - -73.85442575253663
+                  - 40.748851726884496
+                - - -73.85447011824273
+                  - 40.74893934813926
+                - - -73.85479286709332
+                  - 40.74956323075504
+                - ...and 24 more items
+          type: MultiPolygon
+        name: Corona
+        hash:
+          low: -1310768943
+          high: -2139114899
+          unsigned: false
+    indexes:
+      - v: 2
+        key:
+          _id: 1
+        name: _id_
+        description: Index on the '_id' field, which ensures each document has a unique
+          identifier and allows for efficient lookups by '_id'.

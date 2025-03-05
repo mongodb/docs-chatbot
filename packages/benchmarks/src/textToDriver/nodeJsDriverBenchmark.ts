@@ -1,10 +1,10 @@
 import { runTextToDriverEval } from "./runTextToDriverEval";
-import { models } from "../models";
+import { models } from "mongodb-rag-core/models";
 import { assertEnvVars } from "mongodb-rag-core";
 import { MongoClient } from "mongodb-rag-core/mongodb";
 import { NODE_JS_PROMPTS } from "./generateDriverCode/languagePrompts/nodeJs";
 import { TEXT_TO_DRIVER_ENV_VARS } from "./TextToDriverEnvVars";
-import { BRAINTRUST_ENV_VARS } from "../envVars";
+import { BRAINTRUST_ENV_VARS } from "mongodb-rag-core";
 import PromisePool from "@supercharge/promise-pool";
 import { openAiClientFactory } from "../openAiClients";
 async function sleep(ms: number) {

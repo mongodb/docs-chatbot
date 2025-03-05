@@ -1,0 +1,300 @@
+name: sample_airbnb
+description: The 'sample_airbnb' database is designed to store and manage data
+  related to Airbnb listings. It contains detailed information about various
+  properties available for rent, including their descriptions, amenities, host
+  details, pricing, and reviews. This database is essential for managing
+  Airbnb's property listings, facilitating user searches, and providing
+  comprehensive information to potential renters.
+latestDate:
+  $date: 2025-03-04T21:40:09.214Z
+collections:
+  - name: listingsAndReviews
+    description: The 'listingsAndReviews' collection stores comprehensive data about
+      Airbnb listings. Each document in this collection represents a single
+      listing and includes details such as the property's name, description,
+      location, amenities, pricing, and availability. It also contains host
+      information, reviews, and ratings. This collection is central to the
+      database as it aggregates all necessary information for a listing,
+      enabling users to search and evaluate properties. The collection's indexes
+      support efficient querying by property type, room type, and location,
+      among other attributes.
+    schema: |-
+      interface ListingsAndReviews {
+        /** Unique identifier for the listing */
+        _id: string;
+        /** URL of the listing on Airbnb */
+        listing_url: string;
+        /** Name of the listing */
+        name: string;
+        /** Summary of the listing */
+        summary: string;
+        /** Description of the space */
+        space: string;
+        /** Detailed description of the listing */
+        description: string;
+        /** Overview of the neighborhood */
+        neighborhood_overview: string;
+        /** Additional notes about the listing */
+        notes: string;
+        /** Information about public transit options */
+        transit: string;
+        /** Information about access to the property */
+        access: string;
+        /** Information about host-guest interaction */
+        interaction: string;
+        /** House rules for the listing */
+        house_rules: string;
+        /** Type of property (e.g., Apartment, House) */
+        property_type: string;
+        /** Type of room offered (e.g., Entire home/apt, Private room) */
+        room_type: string;
+        /** Type of bed offered */
+        bed_type: string;
+        /** Minimum number of nights required for booking */
+        minimum_nights: string;
+        /** Maximum number of nights allowed for booking */
+        maximum_nights: string;
+        /** Cancellation policy for the listing */
+        cancellation_policy: string;
+        /** Date when the listing was last scraped */
+        last_scraped: Date;
+        /** Date when the calendar was last scraped */
+        calendar_last_scraped: Date;
+        /** Date of the first review */
+        first_review: Date;
+        /** Date of the last review */
+        last_review: Date;
+        /** Number of guests the listing accommodates */
+        accommodates: number;
+        /** Number of bedrooms in the listing */
+        bedrooms: number;
+        /** Number of beds in the listing */
+        beds: number;
+        /** Total number of reviews for the listing */
+        number_of_reviews: number;
+        /** Number of bathrooms in the listing */
+        bathrooms: number;
+        /** List of amenities available in the listing */
+        amenities: string[];
+        /** Price per night for the listing */
+        price: number;
+        /** Security deposit required for the listing */
+        security_deposit: number;
+        /** Cleaning fee for the listing */
+        cleaning_fee: number;
+        /** Additional fee for extra people */
+        extra_people: number;
+        /** Number of guests included in the base price */
+        guests_included: number;
+        /** Images related to the listing */
+        images: {
+          /** URL of the thumbnail image */
+          thumbnail_url: string;
+          /** URL of the medium-sized image */
+          medium_url: string;
+          /** URL of the main picture */
+          picture_url: string;
+          /** URL of the extra-large picture */
+          xl_picture_url: string;
+        };
+        /** Host information */
+        host: {
+          /** Unique identifier for the host */
+          host_id: string;
+          /** URL of the host's profile */
+          host_url: string;
+          /** Name of the host */
+          host_name: string;
+          /** Location of the host */
+          host_location: string;
+          /** Description about the host */
+          host_about: string;
+          /** Host's response time */
+          host_response_time: string;
+          /** URL of the host's thumbnail image */
+          host_thumbnail_url: string;
+          /** URL of the host's picture */
+          host_picture_url: string;
+          /** Host's neighborhood */
+          host_neighbourhood: string;
+          /** Host's response rate */
+          host_response_rate: number;
+          /** Whether the host is a superhost */
+          host_is_superhost: boolean;
+          /** Whether the host has a profile picture */
+          host_has_profile_pic: boolean;
+          /** Whether the host's identity is verified */
+          host_identity_verified: boolean;
+          /** Number of listings the host has */
+          host_listings_count: number;
+          /** Total number of listings the host has */
+          host_total_listings_count: number;
+          /** Verifications the host has */
+          host_verifications: string[];
+        };
+        /** Address information */
+        address: {
+          /** Street address of the listing */
+          street: string;
+          /** Suburb of the listing */
+          suburb: string;
+          /** Government area of the listing */
+          government_area: string;
+          /** Market area of the listing */
+          market: string;
+          /** Country where the listing is located */
+          country: string;
+          /** Country code of the listing's location */
+          country_code: string;
+          /** Geolocation information */
+          location: {
+            /** Type of location (e.g., Point) */
+            type: string;
+            /** Coordinates of the location */
+            coordinates: number[];
+            /** Whether the location is exact */
+            is_location_exact: boolean;
+          };
+        };
+        /** Availability information */
+        availability: {
+          /** Availability in the next 30 days */
+          availability_30: number;
+          /** Availability in the next 60 days */
+          availability_60: number;
+          /** Availability in the next 90 days */
+          availability_90: number;
+          /** Availability in the next 365 days */
+          availability_365: number;
+        };
+        /** Review scores */
+        review_scores: {
+          /** Accuracy score */
+          review_scores_accuracy: number;
+          /** Cleanliness score */
+          review_scores_cleanliness: number;
+          /** Check-in score */
+          review_scores_checkin: number;
+          /** Communication score */
+          review_scores_communication: number;
+          /** Location score */
+          review_scores_location: number;
+          /** Value score */
+          review_scores_value: number;
+          /** Overall rating score */
+          review_scores_rating: number;
+        };
+        /** Reviews of the listing */
+        reviews: {
+          /** Unique identifier for the review */
+          _id: string;
+          /** Date of the review */
+          date: Date;
+          /** Identifier of the listing being reviewed */
+          listing_id: string;
+          /** Identifier of the reviewer */
+          reviewer_id: string;
+          /** Name of the reviewer */
+          reviewer_name: string;
+          /** Comments made by the reviewer */
+          comments: string;
+        }[];
+        /** Hash value for the listing */
+        hash: number;
+      }
+    examples:
+      - _id: "30412858"
+        listing_url: https://www.airbnb.com/rooms/30412858
+        name: Nostalgic & Simplicity Style 2BR Darling Harbour
+        summary: Overlooking picturesque Darling Harbour, Cockle Bay and Sydney CBD's
+          striking skyline from rooftop. ...
+        space: Very spacious apartment and quite,  two picturesque  bedrooms with
+          balcony access, two spacious bath...
+        description: Overlooking picturesque Darling Harbour, Cockle Bay and Sydney
+          CBD's striking skyline from rooftop. ...
+        neighborhood_overview: Ferry, Bus and Light Rail just across the road. More
+          information --> Ferry takes you directly to Ope...
+        notes: ""
+        transit: The TripGo app can help you with transport timetables.
+        access: Full access to the entire apartment and one car spot Full access to all
+          the amenities that are locat...
+        interaction: I'm available on my phone at all hours of the day to help you with
+          anything you need
+        house_rules: ""
+        property_type: Apartment
+        room_type: Entire home/apt
+        bed_type: Real Bed
+        minimum_nights: "1"
+        maximum_nights: "1125"
+        cancellation_policy: moderate
+        last_scraped:
+          $date: 2019-03-07T05:00:00Z
+        calendar_last_scraped:
+          $date: 2019-03-07T05:00:00Z
+        ...: 20 more keys
+      - _id: "19712132"
+        listing_url: https://www.airbnb.com/rooms/19712132
+        name: GREAT LOCATION, AMAZING OCEANFRONT VIEWS!
+        summary: Welcome to Kaleialoha " Lei of Love,” From your PRIVATE LANAI you have
+          UNOBSTRUCTED, DIRECT OCEANRON...
+        space: Great location and an amazing OCEANFRONT view for a family holiday or a
+          romantic getaway! Kaleialoha...
+        description: Welcome to Kaleialoha " Lei of Love,” From your PRIVATE LANAI you
+          have UNOBSTRUCTED, DIRECT OCEANRON...
+        neighborhood_overview: This property is centrally located in West Maui and is
+          close to a grocery store, shopping and many r...
+        notes: ""
+        transit: We always recommend that you have a rental car, but if you choose not
+          too, we have several taxi serv...
+        access: Our guests' are welcome to use whatever is in the unit, unless it's in a
+          locked cabinet or closet.
+        interaction: Once your booking has been confirmed, we will provide you a written
+          confirmation that will provide t...
+        house_rules: "-  Quiet Hours 10 PM - 8 AM - This is a non smoking unit. Please
+          smoke at the designed smoking areas..."
+        property_type: Condominium
+        room_type: Entire home/apt
+        bed_type: Real Bed
+        minimum_nights: "4"
+        maximum_nights: "60"
+        cancellation_policy: strict_14_with_grace_period
+        last_scraped:
+          $date: 2019-03-06T05:00:00Z
+        calendar_last_scraped:
+          $date: 2019-03-06T05:00:00Z
+        ...: 20 more keys
+    indexes:
+      - v: 2
+        key:
+          _id: 1
+        name: _id_
+        description: Index on the _id field, which ensures each document in the
+          collection has a unique identifier. This is the default index created
+          by MongoDB for every collection.
+      - v: 2
+        key:
+          property_type: 1
+          room_type: 1
+          beds: 1
+        name: property_type_1_room_type_1_beds_1
+        background: true
+        description: Compound index on property_type, room_type, and beds fields. This
+          index can be used to efficiently query listings based on the type of
+          property, room, and number of beds, which is useful for filtering
+          search results.
+      - v: 2
+        key:
+          name: 1
+        name: name_1
+        background: true
+        description: Index on the name field, allowing for efficient searching and
+          sorting of listings by their name.
+      - v: 2
+        key:
+          address.location: 2dsphere
+        name: address.location_2dsphere
+        background: true
+        2dsphereIndexVersion: 3
+        description: 2dsphere index on the address.location field, enabling geospatial
+          queries to find listings within a certain area or proximity. This is
+          useful for location-based searches.

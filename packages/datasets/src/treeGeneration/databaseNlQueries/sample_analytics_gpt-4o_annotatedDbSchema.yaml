@@ -1,0 +1,313 @@
+name: sample_analytics
+description: The 'sample_analytics' database is designed to manage and analyze
+  customer financial data, focusing on customer profiles, their financial
+  accounts, and transaction histories. It supports financial services by
+  providing detailed insights into customer activities, account management, and
+  transaction tracking.
+latestDate:
+  $date: 2025-03-04T21:40:35.800Z
+collections:
+  - name: customers
+    description: The 'customers' collection stores personal and account-related
+      information about users, including their name, address, birthdate, email,
+      and associated financial accounts. It also includes details about their
+      membership tiers and benefits, which are crucial for understanding
+      customer segmentation and service personalization.
+    schema: >-
+      interface Customer {
+        /** Unique identifier for the customer */
+        _id: ObjectId;
+        /** Username of the customer */
+        username: string;
+        /** Full name of the customer */
+        name: string;
+        /** Address of the customer */
+        address: string;
+        /** Birthdate of the customer */
+        birthdate: Date;
+        /** Email address of the customer */
+        email: string;
+        /** List of account numbers associated with the customer */
+        accounts: number[];
+        /** Details of the customer's membership tiers and benefits */
+        tier_and_details: {
+          [key: string]: {
+            /** Tier level of the membership */
+            tier: string;
+            /** Benefits associated with the tier */
+            benefits: string[];
+            /** Indicates if the membership is active */
+            active: boolean;
+            /** Unique identifier for the tier */
+            id: string;
+          };
+        };
+        /** Hash value for internal use, possibly for data integrity or versioning */
+        hash: Long;
+      }
+    examples:
+      - _id:
+          $oid: 5ca4bbcea2dd94ee58162b52
+        username: rhonda93
+        name: Shannon Bonilla
+        address: |-
+          964 Vazquez Extensions Apt. 579
+          Cruzside, OH 67037
+        birthdate:
+          $date: 1988-11-27T22:53:50Z
+        email: braunelizabeth@hotmail.com
+        accounts:
+          - 934308
+          - 103062
+        tier_and_details:
+          d1b48391a5244e898d44f785ddaab956:
+            tier: Platinum
+            benefits:
+              - travel insurance
+            active: true
+            id: d1b48391a5244e898d44f785ddaab956
+          b56e1a4782b248e6b704d12206b56f95:
+            tier: Silver
+            benefits:
+              - airline lounge access
+            active: true
+            id: b56e1a4782b248e6b704d12206b56f95
+          4656ca6cf342445dbc024429fe6fef64:
+            tier: Gold
+            benefits:
+              - travel insurance
+              - financial planning assistance
+            active: true
+            id: 4656ca6cf342445dbc024429fe6fef64
+        hash:
+          low: 1210936438
+          high: -2141661999
+          unsigned: false
+      - _id:
+          $oid: 5ca4bbcea2dd94ee58162b86
+        username: briannamercado
+        name: Summer Cunningham
+        address: |-
+          6855 Bailey Bypass Suite 417
+          New Cynthiaview, ID 14820
+        birthdate:
+          $date: 1972-08-03T23:24:30Z
+        email: patriciasmith@hotmail.com
+        accounts:
+          - 177869
+          - 253017
+        tier_and_details: {}
+        hash:
+          low: -2046932827
+          high: -2141413743
+          unsigned: false
+    indexes:
+      - v: 2
+        key:
+          _id: 1
+        name: _id_
+        description: Index on the _id field to ensure each document has a unique
+          identifier and to optimize queries that retrieve documents by their
+          _id. This is a default index created by MongoDB.
+  - name: transactions
+    description: The 'accounts' collection contains information about financial
+      accounts, including account IDs, credit limits, and the types of financial
+      products associated with each account. This collection is essential for
+      managing customer accounts and linking them to their respective
+      transactions.
+    schema: >-
+      interface Transaction {
+        /**
+         * Unique identifier for the transaction document.
+         */
+        _id: ObjectId;
+        /**
+         * Identifier for the account associated with the transactions.
+         */
+        account_id: number;
+        /**
+         * Total number of transactions in the document.
+         */
+        transaction_count: number;
+        /**
+         * Start date for the transaction bucket.
+         */
+        bucket_start_date: Date;
+        /**
+         * End date for the transaction bucket.
+         */
+        bucket_end_date: Date;
+        /**
+         * Array of transaction details.
+         */
+        transactions: {
+          /**
+           * Date of the transaction.
+           */
+          date: Date;
+          /**
+           * Amount involved in the transaction.
+           */
+          amount: number;
+          /**
+           * Code representing the type of transaction (e.g., buy, sell).
+           */
+          transaction_code: string;
+          /**
+           * Symbol of the stock or asset involved in the transaction.
+           */
+          symbol: string;
+          /**
+           * Price per unit of the asset at the time of transaction.
+           */
+          price: string;
+          /**
+           * Total value of the transaction.
+           */
+          total: string;
+        }[];
+        /**
+         * Hash value for the transaction document, possibly used for integrity checks.
+         */
+        hash: Long;
+      }
+    examples:
+      - _id:
+          $oid: 5ca4bbc1a2dd94ee58161f20
+        account_id: 668857
+        transaction_count: 4
+        bucket_start_date:
+          $date: 2013-11-11T00:00:00Z
+        bucket_end_date:
+          $date: 2017-01-05T00:00:00Z
+        transactions:
+          - date:
+              $date: 2014-02-12T00:00:00Z
+            amount: 1666
+            transaction_code: buy
+            symbol: ebay
+            price: "22.79595976508900179169359034858644008636474609375"
+            total: "37978.06896863827698496152152"
+          - date:
+              $date: 2016-03-24T00:00:00Z
+            amount: 256
+            transaction_code: sell
+            symbol: znga
+            price: "2.1803357869993948980891218525357544422149658203125"
+            total: "558.1659614718450939108151942"
+          - date:
+              $date: 2016-11-15T00:00:00Z
+            amount: 112
+            transaction_code: buy
+            symbol: ebay
+            price: "28.04653920093861785289846011437475681304931640625"
+            total: "3141.212390505125199524627533"
+          - ...and 1 more items
+        hash:
+          low: 1320643258
+          high: -2143359422
+          unsigned: false
+      - _id:
+          $oid: 5ca4bbc1a2dd94ee58162271
+        account_id: 135875
+        transaction_count: 41
+        bucket_start_date:
+          $date:
+            $numberLong: "-26697600000"
+        bucket_end_date:
+          $date: 2016-10-09T00:00:00Z
+        transactions:
+          - date:
+              $date: 2004-07-07T00:00:00Z
+            amount: 7991
+            transaction_code: buy
+            symbol: adbe
+            price: "22.63371588543464696385854040272533893585205078125"
+            total: "180866.0236405082638881935964"
+          - date:
+              $date: 2016-02-10T00:00:00Z
+            amount: 1844
+            transaction_code: sell
+            symbol: aapl
+            price: "91.3500969192104292915246332995593547821044921875"
+            total: "168449.5787190240316135714238"
+          - date:
+              $date: 2014-04-10T00:00:00Z
+            amount: 2763
+            transaction_code: sell
+            symbol: sap
+            price: "76.1910100009028354861584375612437725067138671875"
+            total: "210515.7606324945344482557630"
+          - ...and 38 more items
+        hash:
+          low: -110420247
+          high: -2139665468
+          unsigned: false
+    indexes:
+      - v: 2
+        key:
+          _id: 1
+        name: _id_
+        description: Index on the _id field to ensure each document has a unique
+          identifier and to optimize queries that retrieve documents by their
+          _id. This is a default index created by MongoDB.
+  - name: accounts
+    description: The 'transactions' collection records detailed transaction
+      histories for each account, including transaction dates, amounts, codes,
+      and financial symbols. This collection is vital for tracking financial
+      activities and analyzing transaction patterns over time.
+    schema: >-
+      interface Accounts {
+        /**
+         * Unique identifier for the account document.
+         */
+        _id: ObjectId;
+        /**
+         * Numeric identifier for the account.
+         */
+        account_id: number;
+        /**
+         * Credit limit or maximum allowable balance for the account.
+         */
+        limit: number;
+        /**
+         * List of products associated with the account, such as investment funds or stocks.
+         */
+        products: string[];
+        /**
+         * Hash value for internal use, possibly for data integrity or versioning.
+         */
+        hash: Long;
+      }
+    examples:
+      - _id:
+          $oid: 5ca4bbc7a2dd94ee581629cf
+        account_id: 892096
+        limit: 10000
+        products:
+          - InvestmentFund
+          - Brokerage
+          - InvestmentStock
+        hash:
+          low: 1372079182
+          high: -2146448793
+          unsigned: false
+      - _id:
+          $oid: 5ca4bbc7a2dd94ee5816283e
+        account_id: 779716
+        limit: 10000
+        products:
+          - InvestmentFund
+          - InvestmentStock
+        hash:
+          low: -963071305
+          high: -2145232282
+          unsigned: false
+    indexes:
+      - v: 2
+        key:
+          _id: 1
+        name: _id_
+        description: Index on the _id field to ensure each document has a unique
+          identifier and to optimize queries that retrieve documents by their
+          _id. This is a default index created by MongoDB.

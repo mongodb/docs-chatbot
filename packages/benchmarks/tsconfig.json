@@ -5,5 +5,5 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext"
   },
-  "include": ["./src/**/*.ts"]
+  "include": ["./src/**/*.ts", "../mongodb-rag-core/src/models/models.test.ts", "../mongodb-rag-core/src/models/models.ts", "../mongodb-rag-core/src/models/makeOpenAiClientFactory.ts"]
 }

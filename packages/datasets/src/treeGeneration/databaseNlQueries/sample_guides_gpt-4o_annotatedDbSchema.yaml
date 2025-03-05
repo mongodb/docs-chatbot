@@ -1,0 +1,104 @@
+name: sample_guides
+description: The 'sample_guides' database is designed to store and manage
+  information about planets in our solar system. It provides detailed data on
+  each planet's characteristics, such as its position relative to the sun,
+  atmospheric composition, surface temperature, and other unique identifiers.
+  This database is likely used for educational purposes, research, or as a
+  reference for applications related to astronomy or space exploration.
+latestDate:
+  $date: 2025-03-04T21:41:11.017Z
+collections:
+  - name: planets
+    description: The 'planets' collection stores detailed information about each
+      planet in the solar system. It includes data such as the planet's name,
+      its order from the sun, whether it has rings, its main atmospheric
+      components, and surface temperature details. This collection serves as the
+      core of the database, providing essential data for any analysis or
+      application that requires planetary information. The collection is indexed
+      by the unique identifier '_id', ensuring efficient data retrieval.
+    schema: |-
+      interface Planet {
+        /**
+         * Unique identifier for the planet document.
+         */
+        _id: ObjectId;
+        /**
+         * The name of the planet.
+         */
+        name: string;
+        /**
+         * The order of the planet from the Sun.
+         */
+        orderFromSun: number;
+        /**
+         * Indicates whether the planet has rings.
+         */
+        hasRings: boolean;
+        /**
+         * The main atmospheric components of the planet.
+         */
+        mainAtmosphere: string[];
+        /**
+         * The surface temperature of the planet in degrees Celsius.
+         */
+        surfaceTemperatureC: {
+          /**
+           * Minimum recorded surface temperature, can be null if unknown.
+           */
+          min: number | null;
+          /**
+           * Maximum recorded surface temperature, can be null if unknown.
+           */
+          max: number | null;
+          /**
+           * Mean surface temperature.
+           */
+          mean: number;
+        };
+        /**
+         * A hash value for the planet document, used for internal purposes.
+         */
+        hash: Long;
+      }
+    examples:
+      - _id:
+          $oid: 621ff30d2a3e781873fcb661
+        name: Earth
+        orderFromSun: 3
+        hasRings: false
+        mainAtmosphere:
+          - N
+          - O2
+          - Ar
+        surfaceTemperatureC:
+          min: -89.2
+          max: 56.7
+          mean: 14
+        hash:
+          low: 375362087
+          high: -1898024070
+          unsigned: false
+      - _id:
+          $oid: 621ff30d2a3e781873fcb662
+        name: Venus
+        orderFromSun: 2
+        hasRings: false
+        mainAtmosphere:
+          - CO2
+          - N
+        surfaceTemperatureC:
+          min: null
+          max: null
+          mean: 464
+        hash:
+          low: -547252065
+          high: -1117723852
+          unsigned: false
+    indexes:
+      - v: 2
+        key:
+          _id: 1
+        name: _id_
+        description: Index on the _id field to ensure each document has a unique
+          identifier and to optimize queries that retrieve documents by their
+          _id.

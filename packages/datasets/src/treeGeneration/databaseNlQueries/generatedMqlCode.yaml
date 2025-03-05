@@ -1,0 +1,983 @@
+- nlQuery: What are the top 10 most viewed movies in the last 24 hours with their
+    like counts and comment counts?
+  queryPlan: 1. Use the 'movies' collection to find the top 10 most viewed movies
+    in the last 24 hours. 2. Filter the movies based on the 'views' field and
+    the 'last 24 hours' criterion. 3. Use the $match stage to filter movies
+    viewed in the last 24 hours. 4. Use the $sort stage to sort the movies based
+    on the 'views' field in descending order. 5. Use the $limit stage to limit
+    the results to the top 10 movies. 6. Use the $lookup stage to join with the
+    'comments' collection to get the comment counts. 7. Use the $lookup stage to
+    join with the 'likes' collection to get the like counts. 8. Use the $project
+    stage to shape the final output, including the movie title, views, like
+    counts, and comment counts.
+  code: "db.movies.aggregate([ { $match: { views: { $gte: new Date(new
+    Date().getTime() - 24*60*60*1000) } } }, { $sort: { views: -1 } }, { $limit:
+    10 }, { $lookup: { from: 'comments', localField: '_id', foreignField:
+    'movie_id', as: 'comments' } }, { $lookup: { from: 'likes', localField:
+    '_id', foreignField: 'movie_id', as: 'likes' } }, { $project: { title: 1,
+    views: 1, likeCount: { $size: '$likes' }, commentCount: { $size: '$comments'
+    } } } ])"
+  language: mongosh
+- nlQuery: What are the top 10 most viewed movies in the last 24 hours with their
+    like counts and comment counts?
+  queryPlan: >-
+    1. Use the 'movies' collection to find movies that were viewed in the last
+    24 hours. This requires filtering based on a timestamp field (assuming there
+    is one, e.g., 'lastViewed'). 
+
+    2. Sort the movies by the number of views in descending order. 
+
+    3. Limit the result to the top 10 most viewed movies. 
+
+    4. For each movie, include the like counts and comment counts.
+
+    5. Use appropriate projections to return only the necessary fields: title,
+    views, like counts, and comment counts.
+  code: "db.movies.find({lastViewed: {$gte: new Date(Date.now() -
+    24*60*60*1000)}}, {title: 1, views: 1, likeCount: 1, commentCount:
+    1}).sort({views: -1}).limit(10)"
+  language: mongosh
+- nlQuery: What are the top 10 most viewed movies in the last 24 hours with their
+    like counts and comment counts?
+  queryPlan: >-
+    1. Use the `movies` collection to filter movies that have been viewed in the
+    last 24 hours. This requires checking the view timestamp against the current
+    date minus 24 hours.
+
+    2. Aggregate the results to include the like counts and comment counts for
+    each movie.
+
+    3. Sort the results by the number of views in descending order.
+
+    4. Limit the results to the top 10 movies.
+
+    5. Project the required fields: movie title, view count, like count, and
+    comment count.
+  code: >-
+    db.movies.aggregate([
+      {
+        $match: {
+          "views.timestamp": { $gte: new Date(new Date() - 24 * 60 * 60 * 1000) }
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          viewCount: { $size: "$views" },
+          likeCount: { $size: "$likes" },
+          commentCount: { $size: "$comments" }
+        }
+      },
+      {
+        $sort: { viewCount: -1 }
+      },
+      {
+        $limit: 10
+      }
+    ])
+  language: mongosh
+- nlQuery: What are the top 10 most viewed movies in the last 24 hours with their
+    like counts and comment counts?
+  queryPlan: >-
+    1. Use the 'movies' collection to find movies that have been viewed in the
+    last 24 hours. 
+
+    2. Match the movies based on the 'views' field and filter for the last 24
+    hours using the current date and $gte operator. 
+
+    3. Sort the movies by the number of views in descending order. 
+
+    4. Limit the result to the top 10 most viewed movies. 
+
+    5. Use $lookup to join with the 'users' collection to get the like counts
+    and comment counts for each movie. 
+
+    6. Project the necessary fields: movie title, views, like counts, and
+    comment counts.
+  code: |-
+    db.movies.aggregate([
+      {
+        $match: {
+          views: {
+            $gte: new Date(new Date().getTime() - 24*60*60*1000)
+          }
+        }
+      },
+      {
+        $sort: { views: -1 }
+      },
+      {
+        $limit: 10
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "likedMovies",
+          as: "likes"
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "commentedMovies",
+          as: "comments"
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          views: 1,
+          likeCount: { $size: "$likes" },
+          commentCount: { $size: "$comments" }
+        }
+      }
+    ])
+  language: mongosh
+- nlQuery: What are the top 10 most viewed movies in the last 24 hours with their
+    like counts and comment counts?
+  queryPlan: >-
+    1. First, we need to filter the movies that have been viewed in the last 24
+    hours. This will require checking a 'views' field which should have a
+    timestamp. 
+
+    2. Next, we need to count the number of likes and comments for each movie.
+    This will likely involve looking at related collections or fields within the
+    'movies' collection itself. 
+
+    3. We should then sort these movies by the number of views in descending
+    order.
+
+    4. Finally, we will limit the result to the top 10 movies and project the
+    necessary fields: title, views, like counts, and comment counts.
+  code: |-
+    db.movies.aggregate([
+      {
+        $match: {
+          views: { $gte: new Date(Date.now() - 24*60*60*1000) }
+        }
+      },
+      {
+        $addFields: {
+          likeCount: { $size: { $ifNull: [ "$likes", [] ] } },
+          commentCount: { $size: { $ifNull: [ "$comments", [] ] } }
+        }
+      },
+      {
+        $sort: { views: -1 }
+      },
+      {
+        $limit: 10
+      },
+      {
+        $project: {
+          title: 1,
+          views: 1,
+          likeCount: 1,
+          commentCount: 1
+        }
+      }
+    ])
+  language: mongosh
+- nlQuery: Compare the average ratings and total views across different genres for
+    the past month versus the previous month
+  queryPlan: >-
+    To compare the average ratings and total views across different genres for
+    the past month versus the previous month, we need to follow these steps:
+
+    1. Get the current date and calculate the first day of the current month and
+    the first day of the previous month.
+
+    2. Use the $match stage to filter movies based on the release date within
+    the past month and the previous month.
+
+    3. Use the $group stage to group movies by genre and calculate the average
+    rating and total views for each genre for the past month and the previous
+    month.
+
+    4. Use the $project stage to format the output to include the genre, average
+    rating, and total views.
+
+    5. Combine the results for the past month and the previous month to compare.
+
+    6. Sort the results by genre for better readability.
+  code: >-
+    const currentDate = new Date();
+
+    const firstDayOfCurrentMonth = new Date(currentDate.getFullYear(),
+    currentDate.getMonth(), 1);
+
+    const firstDayOfPreviousMonth = new Date(currentDate.getFullYear(),
+    currentDate.getMonth() - 1, 1);
+
+    const lastDayOfPreviousMonth = new Date(currentDate.getFullYear(),
+    currentDate.getMonth(), 0);
+
+
+    db.movies.aggregate([
+      {
+        $match: {
+          release_date: { $gte: firstDayOfPreviousMonth, $lt: firstDayOfCurrentMonth }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            genre: "$genre",
+            month: { $cond: [ { $gte: ["$release_date", firstDayOfCurrentMonth] }, "current", "previous"] }
+          },
+          averageRating: { $avg: "$ratings" },
+          totalViews: { $sum: "$views" }
+        }
+      },
+      {
+        $project: {
+          genre: "$_id.genre",
+          month: "$_id.month",
+          averageRating: 1,
+          totalViews: 1,
+          _id: 0
+        }
+      },
+      {
+        $sort: { genre: 1 }
+      }
+    ]);
+  language: mongosh
+- nlQuery: Compare the average ratings and total views across different genres for
+    the past month versus the previous month
+  queryPlan: >-
+    1. Determine the current date and calculate the date ranges for the past
+    month and the previous month.
+
+    2. Use the $match stage to filter movies by their views and ratings within
+    the specified date ranges.
+
+    3. Use the $group stage to group movies by genre and calculate the average
+    ratings and total views for each genre for both date ranges.
+
+    4. Use the $project stage to format the results to show the comparison
+    between the past month and the previous month.
+
+    5. Sort the results by genre.
+  code: >-
+    const currentDate = new Date();
+
+    const pastMonthStart = new Date(currentDate.getFullYear(),
+    currentDate.getMonth() - 1, 1);
+
+    const pastMonthEnd = new Date(currentDate.getFullYear(),
+    currentDate.getMonth(), 0, 23, 59, 59, 999);
+
+    const previousMonthStart = new Date(currentDate.getFullYear(),
+    currentDate.getMonth() - 2, 1);
+
+    const previousMonthEnd = new Date(currentDate.getFullYear(),
+    currentDate.getMonth() - 1, 0, 23, 59, 59, 999);
+
+
+    db.movies.aggregate([
+      {
+        $match: {
+          $or: [
+            { viewsDate: { $gte: pastMonthStart, $lte: pastMonthEnd } },
+            { viewsDate: { $gte: previousMonthStart, $lte: previousMonthEnd } }
+          ]
+        }
+      },
+      {
+        $group: {
+          _id: {
+            genre: "$genre",
+            month: {
+              $cond: [
+                { $gte: ["$viewsDate", pastMonthStart] },
+                "pastMonth",
+                "previousMonth"
+              ]
+            }
+          },
+          averageRating: { $avg: "$rating" },
+          totalViews: { $sum: "$views" }
+        }
+      },
+      {
+        $group: {
+          _id: "$_id.genre",
+          pastMonthRating: {
+            $avg: {
+              $cond: [
+                { $eq: ["$_id.month", "pastMonth"] },
+                "$averageRating",
+                null
+              ]
+            }
+          },
+          previousMonthRating: {
+            $avg: {
+              $cond: [
+                { $eq: ["$_id.month", "previousMonth"] },
+                "$averageRating",
+                null
+              ]
+            }
+          },
+          pastMonthViews: {
+            $sum: {
+              $cond: [
+                { $eq: ["$_id.month", "pastMonth"] },
+                "$totalViews",
+                0
+              ]
+            }
+          },
+          previousMonthViews: {
+            $sum: {
+              $cond: [
+                { $eq: ["$_id.month", "previousMonth"] },
+                "$totalViews",
+                0
+              ]
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          genre: "$_id",
+          pastMonthRating: 1,
+          previousMonthRating: 1,
+          pastMonthViews: 1,
+          previousMonthViews: 1
+        }
+      },
+      { $sort: { genre: 1 } }
+    ]);
+  language: mongosh
+- nlQuery: Compare the average ratings and total views across different genres for
+    the past month versus the previous month
+  queryPlan: >-
+    1. Define the date range for the current month and the previous month using
+    the $date operators.
+
+    2. Use the $match stage to filter movies based on their ratings and views
+    within the specified date ranges.
+
+    3. Utilize the $group stage to calculate the average ratings and total views
+    for each genre for both the current month and the previous month.
+
+    4. Use $project to format the results and include necessary fields.
+
+    5. Sort the results by genre for better readability.
+  code: >-
+    const now = new Date();
+
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const startOfPreviousMonth = new Date(now.getFullYear(), now.getMonth() - 1,
+    1);
+
+    const endOfPreviousMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
+
+    const pipeline = [
+      {
+        $match: {
+          'ratings.date': { $gte: startOfPreviousMonth, $lt: now }
+        }
+      },
+      {
+        $project: {
+          genre: 1,
+          ratings: 1,
+          views: 1,
+          isCurrentMonth: { $gte: ['$ratings.date', startOfCurrentMonth] }
+        }
+      },
+      {
+        $group: {
+          _id: { genre: '$genre', isCurrentMonth: '$isCurrentMonth' },
+          avgRating: { $avg: '$ratings.rating' },
+          totalViews: { $sum: '$views' }
+        }
+      },
+      {
+        $project: {
+          genre: '$_id.genre',
+          isCurrentMonth: '$_id.isCurrentMonth',
+          avgRating: 1,
+          totalViews: 1,
+          _id: 0
+        }
+      },
+      { $sort: { genre: 1 } }
+    ];
+
+
+    db.movies.aggregate(pipeline);
+  language: mongosh
+- nlQuery: Compare the average ratings and total views across different genres for
+    the past month versus the previous month
+  queryPlan: >-
+    1. Calculate the date ranges for the past month and the previous month.
+
+    2. Use the $match stage to filter movies based on their release dates within
+    the calculated date ranges.
+
+    3. Group the movies by genre and calculate the average ratings and total
+    views for each genre within the specified date ranges.
+
+    4. Use the $project stage to format the results for comparison.
+
+    5. Sort the results by genre for easy comparison.
+  code: >-
+    const today = new Date();
+
+    const startOfCurrentMonth = new Date(today.getFullYear(), today.getMonth(),
+    1);
+
+    const startOfPreviousMonth = new Date(today.getFullYear(), today.getMonth()
+    - 1, 1);
+
+    const endOfPreviousMonth = new Date(today.getFullYear(), today.getMonth(),
+    0);
+
+
+    // Aggregate query to compare average ratings and total views
+
+    const result = db.movies.aggregate([
+      {
+        $match: {
+          $or: [
+            { releaseDate: { $gte: startOfCurrentMonth, $lt: today } },
+            { releaseDate: { $gte: startOfPreviousMonth, $lt: endOfPreviousMonth } }
+          ]
+        }
+      },
+      {
+        $group: {
+          _id: {
+            genre: "$genre",
+            month: {
+              $cond: [
+                { $gte: ["$releaseDate", startOfCurrentMonth] },
+                "currentMonth",
+                "previousMonth"
+              ]
+            }
+          },
+          averageRating: { $avg: "$rating" },
+          totalViews: { $sum: "$views" }
+        }
+      },
+      {
+        $project: {
+          genre: "$_id.genre",
+          month: "$_id.month",
+          averageRating: 1,
+          totalViews: 1,
+          _id: 0
+        }
+      },
+      { $sort: { genre: 1, month: 1 } }
+    ]);
+
+    result
+  language: mongosh
+- nlQuery: Compare the average ratings and total views across different genres for
+    the past month versus the previous month
+  queryPlan: >
+    1. Calculate the date range for the past month and the previous month.
+
+    2. Use the $match stage to filter movies based on their release date within
+    the calculated date ranges.
+
+    3. Use the $group stage to group by genre and calculate the average rating
+    and total views for each genre.
+
+    4. Use the $project stage to format the results.
+
+    5. Use the $facet stage to compare the results of the past month and the
+    previous month.
+  code: >-
+    db.movies.aggregate([
+      {
+        $facet: {
+          pastMonth: [
+            {
+              $match: {
+                release_date: { $gte: new Date(new Date().setMonth(new Date().getMonth() - 1)), $lt: new Date() }
+              }
+            },
+            {
+              $group: {
+                _id: "$genre",
+                avgRating: { $avg: "$rating" },
+                totalViews: { $sum: "$views" }
+              }
+            },
+            {
+              $project: {
+                genre: "$_id",
+                avgRating: 1,
+                totalViews: 1,
+                _id: 0
+              }
+            }
+          ],
+          previousMonth: [
+            {
+              $match: {
+                release_date: { $gte: new Date(new Date().setMonth(new Date().getMonth() - 2)), $lt: new Date(new Date().setMonth(new Date().getMonth() - 1)) }
+              }
+            },
+            {
+              $group: {
+                _id: "$genre",
+                avgRating: { $avg: "$rating" },
+                totalViews: { $sum: "$views" }
+              }
+            },
+            {
+              $project: {
+                genre: "$_id",
+                avgRating: 1,
+                totalViews: 1,
+                _id: 0
+              }
+            }
+          ]
+        }
+      }
+    ])
+  language: mongosh
+- nlQuery: Which movies have shown the biggest increase in ratings and views over
+    the past week compared to their previous week?
+  queryPlan: >-
+    1. First, we need to filter the movies collection to get the ratings and
+    views data for the past two weeks. 
+
+    2. Calculate the ratings and views increase for each movie by comparing the
+    data of the past week with the data of the previous week.
+
+    3. Sort the movies based on the highest increase in ratings and views.
+
+    4. Limit the results to a reasonable number to manage the result set.
+
+    5. Return the movie title, year, and the calculated increase in ratings and
+    views.
+  code: >-
+    db.movies.aggregate([
+        {
+            $match: {
+                "ratings.date": { $gte: new Date(new Date().setDate(new Date().getDate() - 14)) },
+                "views.date": { $gte: new Date(new Date().setDate(new Date().getDate() - 14)) }
+            }
+        },
+        {
+            $project: {
+                title: 1,
+                year: 1,
+                ratings: 1,
+                views: 1,
+                ratingsCurrentWeek: {
+                    $filter: {
+                        input: "$ratings",
+                        as: "rating",
+                        cond: { $gte: ["$$rating.date", new Date(new Date().setDate(new Date().getDate() - 7))] }
+                    }
+                },
+                ratingsPreviousWeek: {
+                    $filter: {
+                        input: "$ratings",
+                        as: "rating",
+                        cond: { $lt: ["$$rating.date", new Date(new Date().setDate(new Date().getDate() - 7))] }
+                    }
+                },
+                viewsCurrentWeek: {
+                    $filter: {
+                        input: "$views",
+                        as: "view",
+                        cond: { $gte: ["$$view.date", new Date(new Date().setDate(new Date().getDate() - 7))] }
+                    }
+                },
+                viewsPreviousWeek: {
+                    $filter: {
+                        input: "$views",
+                        as: "view",
+                        cond: { $lt: ["$$view.date", new Date(new Date().setDate(new Date().getDate() - 7))] }
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                title: 1,
+                year: 1,
+                ratingsIncrease: { $subtract: [{ $avg: "$ratingsCurrentWeek.rating" }, { $avg: "$ratingsPreviousWeek.rating" }] },
+                viewsIncrease: { $subtract: [{ $sum: "$viewsCurrentWeek.count" }, { $sum: "$viewsPreviousWeek.count" }] }
+            }
+        },
+        {
+            $sort: { ratingsIncrease: -1, viewsIncrease: -1 }
+        },
+        {
+            $limit: 10
+        }
+    ])
+  language: mongosh
+- nlQuery: Which movies have shown the biggest increase in ratings and views over
+    the past week compared to their previous week?
+  queryPlan: >-
+    1. Identify the relevant fields in the movies collection: title, ratings,
+    views, and timestamps for the ratings and views.
+
+    2. Filter movies that have ratings and views data for the past two weeks.
+
+    3. Calculate the increase in ratings and views by comparing the past week
+    with the previous week.
+
+    4. Sort the movies by the increase in ratings and views in descending order
+    to identify the biggest increases.
+
+    5. Project the relevant fields: title, increase in ratings, and increase in
+    views.
+  code: >-
+    db.movies.aggregate([
+      {
+        $match: {
+          "ratings.timestamp": {
+            $gte: new Date(new Date().setDate(new Date().getDate() - 14))
+          },
+          "views.timestamp": {
+            $gte: new Date(new Date().setDate(new Date().getDate() - 14))
+          }
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          ratings: 1,
+          views: 1,
+          pastWeekRatings: {
+            $filter: {
+              input: "$ratings",
+              as: "rating",
+              cond: {
+                $gte: ["$$rating.timestamp", new Date(new Date().setDate(new Date().getDate() - 7))]
+              }
+            }
+          },
+          prevWeekRatings: {
+            $filter: {
+              input: "$ratings",
+              as: "rating",
+              cond: {
+                $lt: ["$$rating.timestamp", new Date(new Date().setDate(new Date().getDate() - 7))],
+                $gte: ["$$rating.timestamp", new Date(new Date().setDate(new Date().getDate() - 14))]
+              }
+            }
+          },
+          pastWeekViews: {
+            $filter: {
+              input: "$views",
+              as: "view",
+              cond: {
+                $gte: ["$$view.timestamp", new Date(new Date().setDate(new Date().getDate() - 7))]
+              }
+            }
+          },
+          prevWeekViews: {
+            $filter: {
+              input: "$views",
+              as: "view",
+              cond: {
+                $lt: ["$$view.timestamp", new Date(new Date().setDate(new Date().getDate() - 7))],
+                $gte: ["$$view.timestamp", new Date(new Date().setDate(new Date().getDate() - 14))]
+              }
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          pastWeekRatingsAvg: { $avg: "$pastWeekRatings.rating" },
+          prevWeekRatingsAvg: { $avg: "$prevWeekRatings.rating" },
+          pastWeekViewsCount: { $size: "$pastWeekViews" },
+          prevWeekViewsCount: { $size: "$prevWeekViews" }
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          ratingIncrease: { $subtract: ["$pastWeekRatingsAvg", "$prevWeekRatingsAvg"] },
+          viewsIncrease: { $subtract: ["$pastWeekViewsCount", "$prevWeekViewsCount"] }
+        }
+      },
+      {
+        $sort: {
+          ratingIncrease: -1,
+          viewsIncrease: -1
+        }
+      }
+    ])
+  language: mongosh
+- nlQuery: Which movies have shown the biggest increase in ratings and views over
+    the past week compared to their previous week?
+  queryPlan: >-
+    1. Identify the collections involved: 'movies' collection should have the
+    ratings and views information.
+
+    2. We need to compare the ratings and views of the past week to the previous
+    week.
+
+    3. Use the $match stage to filter movies with ratings and views data for the
+    past two weeks.
+
+    4. Use the $project stage to create fields for the ratings and views for the
+    past week and the previous week.
+
+    5. Use the $addFields stage to calculate the difference in ratings and views
+    between the past week and the previous week.
+
+    6. Use the $sort stage to sort movies by the biggest increase in ratings and
+    views.
+
+    7. Use the $limit stage to limit the result set to the top movies with the
+    biggest increases.
+
+    8. Project only necessary fields like title, year, genre, ratings and views
+    increase.
+  code: >-
+    db.movies.aggregate([
+      {
+        $match: {
+          "ratings.date": { $gte: new Date(new Date().setDate(new Date().getDate() - 14)) }
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          year: 1,
+          genre: 1,
+          ratingsPastWeek: {
+            $filter: {
+              input: "$ratings",
+              as: "rating",
+              cond: { $gte: [ "$$rating.date", new Date(new Date().setDate(new Date().getDate() - 7)) ] }
+            }
+          },
+          ratingsPreviousWeek: {
+            $filter: {
+              input: "$ratings",
+              as: "rating",
+              cond: {
+                $and: [
+                  { $gte: [ "$$rating.date", new Date(new Date().setDate(new Date().getDate() - 14)) ] },
+                  { $lt: [ "$$rating.date", new Date(new Date().setDate(new Date().getDate() - 7)) ] }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        $addFields: {
+          ratingsIncrease: {
+            $subtract: [
+              { $avg: "$ratingsPastWeek.rating" },
+              { $avg: "$ratingsPreviousWeek.rating" }
+            ]
+          },
+          viewsIncrease: {
+            $subtract: [
+              { $sum: "$ratingsPastWeek.views" },
+              { $sum: "$ratingsPreviousWeek.views" }
+            ]
+          }
+        }
+      },
+      {
+        $sort: { ratingsIncrease: -1, viewsIncrease: -1 }
+      },
+      {
+        $limit: 10
+      },
+      {
+        $project: {
+          title: 1,
+          year: 1,
+          genre: 1,
+          ratingsIncrease: 1,
+          viewsIncrease: 1
+        }
+      }
+    ])
+  language: mongosh
+- nlQuery: Which movies have shown the biggest increase in ratings and views over
+    the past week compared to their previous week?
+  queryPlan: >-
+    To determine which movies have shown the biggest increase in ratings and
+    views over the past week compared to their previous week, we need to follow
+    these steps: 
+
+    1. We need to calculate the ratings and views for each movie over the last
+    two weeks. 
+
+    2. Calculate the difference in ratings and views between the last week and
+    the previous week. 
+
+    3. Sort the movies based on the highest increase in ratings and views. 
+
+
+    To achieve this, we'll use the aggregation pipeline with the following
+    stages:
+
+    1. $match: Filter movies to include only those that have ratings and views
+    data for the last two weeks.
+
+    2. $project: Calculate the weekly ratings and views for the last two weeks.
+
+    3. $addFields: Calculate the difference in ratings and views between the
+    last week and the previous week.
+
+    4. $sort: Sort the movies based on the highest increase in ratings and
+    views.
+
+    5. $limit: Limit the result to a reasonable number of movies.
+
+
+    We will assume the ratings and views are stored in an array of objects with
+    fields 'date', 'rating', and 'views'.
+  code: >-
+    db.movies.aggregate([
+      {
+        $match: {
+          "ratings.date": {
+            $gte: new Date(new Date().setDate(new Date().getDate() - 14))
+          }
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          ratings: 1,
+          views: 1,
+          lastWeekRatings: {
+            $filter: {
+              input: "$ratings",
+              as: "rating",
+              cond: {
+                $gte: ["$$rating.date", new Date(new Date().setDate(new Date().getDate() - 7))]
+              }
+            }
+          },
+          previousWeekRatings: {
+            $filter: {
+              input: "$ratings",
+              as: "rating",
+              cond: {
+                $lt: ["$$rating.date", new Date(new Date().setDate(new Date().getDate() - 7))]
+              }
+            }
+          },
+          lastWeekViews: {
+            $filter: {
+              input: "$views",
+              as: "view",
+              cond: {
+                $gte: ["$$view.date", new Date(new Date().setDate(new Date().getDate() - 7))]
+              }
+            }
+          },
+          previousWeekViews: {
+            $filter: {
+              input: "$views",
+              as: "view",
+              cond: {
+                $lt: ["$$view.date", new Date(new Date().setDate(new Date().getDate() - 7))]
+              }
+            }
+          }
+        }
+      },
+      {
+        $addFields: {
+          lastWeekRatingAvg: { $avg: "$lastWeekRatings.rating" },
+          previousWeekRatingAvg: { $avg: "$previousWeekRatings.rating" },
+          lastWeekViewsSum: { $sum: "$lastWeekViews.views" },
+          previousWeekViewsSum: { $sum: "$previousWeekViews.views" },
+          ratingIncrease: { $subtract: ["$lastWeekRatingAvg", "$previousWeekRatingAvg"] },
+          viewsIncrease: { $subtract: ["$lastWeekViewsSum", "$previousWeekViewsSum"] }
+        }
+      },
+      {
+        $sort: { ratingIncrease: -1, viewsIncrease: -1 }
+      },
+      {
+        $limit: 10
+      }
+    ])
+  language: mongosh
+- nlQuery: Which movies have shown the biggest increase in ratings and views over
+    the past week compared to their previous week?
+  queryPlan: >-
+    To address this query, we need to follow these steps:
+
+    1. Identify the relevant fields in the `movies` collection that track
+    ratings and views over time. Given the complexity, it's likely that there
+    are fields for daily or weekly ratings and views.
+
+    2. Calculate the change in ratings and views for each movie over the past
+    week compared to the previous week.
+
+    3. Identify the movies with the largest increase in ratings and views.
+
+    4. Return the movie titles and the calculated changes.
+
+
+    Here's the step-by-step approach:
+
+    1. Use the `$match` stage to filter movies that have data for the past two
+    weeks.
+
+    2. Use the `$project` stage to calculate the change in ratings and views.
+
+    3. Use the `$sort` stage to order movies by the largest increase.
+
+    4. Use the `$limit` stage to get the top results.
+  code: |-
+    db.movies.aggregate([
+      {
+        $match: {
+          'ratings.weekly': { $exists: true },
+          'views.weekly': { $exists: true }
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          ratingChange: {
+            $subtract: [
+              { $arrayElemAt: ['$ratings.weekly', -1] },
+              { $arrayElemAt: ['$ratings.weekly', -2] }
+            ]
+          },
+          viewChange: {
+            $subtract: [
+              { $arrayElemAt: ['$views.weekly', -1] },
+              { $arrayElemAt: ['$views.weekly', -2] }
+            ]
+          }
+        }
+      },
+      {
+        $sort: { ratingChange: -1, viewChange: -1 }
+      },
+      {
+        $limit: 10
+      }
+    ])
+  language: mongosh

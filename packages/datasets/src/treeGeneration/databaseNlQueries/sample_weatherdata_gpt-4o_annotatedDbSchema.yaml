@@ -1,0 +1,436 @@
+name: sample_weatherdata
+description: The 'sample_weatherdata' database is designed to store and manage
+  comprehensive weather data collected from various sources. It includes
+  detailed meteorological information such as temperature, pressure, wind,
+  visibility, and sky conditions, along with metadata about the data collection
+  process. This database is likely used for weather analysis, forecasting, and
+  research purposes, providing a rich dataset for understanding atmospheric
+  conditions over time and across different locations.
+latestDate:
+  $date: 2025-03-04T21:39:37.818Z
+collections:
+  - name: data
+    description: The 'data' collection is the core component of the
+      'sample_weatherdata' database, storing detailed weather observations. Each
+      document in this collection represents a weather data point, including
+      attributes like air temperature, dew point, pressure, wind conditions,
+      visibility, and sky conditions. The collection also includes metadata such
+      as the data source, quality control process, and geographical position of
+      the observation. This collection serves as the primary repository of
+      weather data, supporting analysis and research activities. It does not
+      explicitly reference other collections, indicating it may function
+      independently within the database.
+    schema: |-
+      interface Data {
+        /** Unique identifier for the document */
+        _id: ObjectId;
+        /** Station identifier, possibly including location information */
+        st: string;
+        /** Timestamp of the data record */
+        ts: Date;
+        /** Geographical position of the station */
+        position: {
+          /** Type of the geographical data, e.g., 'Point' */
+          type: string;
+          /** Coordinates of the position, typically [longitude, latitude] */
+          coordinates: number[];
+        };
+        /** Elevation of the station in meters */
+        elevation: number;
+        /** Call letters of the station */
+        callLetters: string;
+        /** Quality control process identifier */
+        qualityControlProcess: string;
+        /** Source of the data */
+        dataSource: string;
+        /** Type of the data record */
+        type: string;
+        /** Air temperature details */
+        airTemperature: {
+          /** Temperature value in degrees Celsius */
+          value: number;
+          /** Quality of the temperature data */
+          quality: string;
+        };
+        /** Dew point details */
+        dewPoint: {
+          /** Dew point value in degrees Celsius */
+          value: number;
+          /** Quality of the dew point data */
+          quality: string;
+        };
+        /** Atmospheric pressure details */
+        pressure: {
+          /** Pressure value in hPa */
+          value: number;
+          /** Quality of the pressure data */
+          quality: string;
+        };
+        /** Wind details */
+        wind: {
+          /** Wind direction details */
+          direction: {
+            /** Wind direction angle in degrees */
+            angle: number;
+            /** Quality of the wind direction data */
+            quality: string;
+          };
+          /** Type of wind measurement */
+          type: string;
+          /** Wind speed details */
+          speed: {
+            /** Wind speed in meters per second */
+            rate: number;
+            /** Quality of the wind speed data */
+            quality: string;
+          };
+        };
+        /** Visibility details */
+        visibility: {
+          /** Visibility distance details */
+          distance: {
+            /** Distance value in meters */
+            value: number;
+            /** Quality of the visibility distance data */
+            quality: string;
+          };
+          /** Variability of the visibility */
+          variability: {
+            /** Variability value */
+            value: string;
+            /** Quality of the visibility variability data */
+            quality: string;
+          };
+        };
+        /** Sky condition details */
+        skyCondition: {
+          /** Ceiling height details */
+          ceilingHeight: {
+            /** Ceiling height value in meters */
+            value: number;
+            /** Quality of the ceiling height data */
+            quality: string;
+            /** Determination method of the ceiling height */
+            determination: string;
+          };
+          /** CAVOK (Ceiling and Visibility OK) status */
+          cavok: string;
+        };
+        /** Sections of the data record */
+        sections: string[];
+        /** Precipitation estimated observation details */
+        precipitationEstimatedObservation: {
+          /** Discrepancy in the observation */
+          discrepancy: string;
+          /** Estimated water depth in millimeters */
+          estimatedWaterDepth: number;
+        };
+        /** Past weather observation details (manual) */
+        pastWeatherObservationManual: Array<{
+          /** Atmospheric condition details */
+          atmosphericCondition: {
+            /** Atmospheric condition value */
+            value: string;
+            /** Quality of the atmospheric condition data */
+            quality: string;
+          };
+          /** Observation period details */
+          period: {
+            /** Period value in hours */
+            value: number;
+            /** Quality of the period data */
+            quality: string;
+          };
+        }>;
+        /** Sky condition observation details */
+        skyConditionObservation: {
+          /** Total sky coverage details */
+          totalCoverage: {
+            /** Total coverage value */
+            value: string;
+            /** Opaque coverage value */
+            opaque: string;
+            /** Quality of the total coverage data */
+            quality: string;
+          };
+          /** Lowest cloud coverage details */
+          lowestCloudCoverage: {
+            /** Lowest cloud coverage value */
+            value: string;
+            /** Quality of the lowest cloud coverage data */
+            quality: string;
+          };
+          /** Low cloud genus details */
+          lowCloudGenus: {
+            /** Low cloud genus value */
+            value: string;
+            /** Quality of the low cloud genus data */
+            quality: string;
+          };
+          /** Lowest cloud base height details */
+          lowestCloudBaseHeight: {
+            /** Lowest cloud base height value in meters */
+            value: number;
+            /** Quality of the lowest cloud base height data */
+            quality: string;
+          };
+          /** Mid cloud genus details */
+          midCloudGenus: {
+            /** Mid cloud genus value */
+            value: string;
+            /** Quality of the mid cloud genus data */
+            quality: string;
+          };
+          /** High cloud genus details */
+          highCloudGenus: {
+            /** High cloud genus value */
+            value: string;
+            /** Quality of the high cloud genus data */
+            quality: string;
+          };
+        };
+        /** Atmospheric pressure change details */
+        atmosphericPressureChange: {
+          /** Pressure tendency details */
+          tendency: {
+            /** Tendency code */
+            code: string;
+            /** Quality of the tendency data */
+            quality: string;
+          };
+          /** Pressure change quantity over 3 hours */
+          quantity3Hours: {
+            /** Quantity value in hPa */
+            value: number;
+            /** Quality of the 3-hour quantity data */
+            quality: string;
+          };
+          /** Pressure change quantity over 24 hours */
+          quantity24Hours: {
+            /** Quantity value in hPa */
+            value: number;
+            /** Quality of the 24-hour quantity data */
+            quality: string;
+          };
+        };
+        /** Present weather observation details (manual) */
+        presentWeatherObservationManual: Array<{
+          /** Weather condition description */
+          condition: string;
+          /** Quality of the weather condition data */
+          quality: string;
+        }>;
+        /** Sea surface temperature details */
+        seaSurfaceTemperature: {
+          /** Sea surface temperature value in degrees Celsius */
+          value: number;
+          /** Quality of the sea surface temperature data */
+          quality: string;
+        };
+        /** Wave measurement details */
+        waveMeasurement: {
+          /** Method of wave measurement */
+          method: string;
+          /** Wave details */
+          waves: {
+            /** Wave period in seconds */
+            period: number;
+            /** Wave height in meters */
+            height: number;
+            /** Quality of the wave data */
+            quality: string;
+          };
+          /** Sea state details */
+          seaState: {
+            /** Sea state code */
+            code: string;
+            /** Quality of the sea state data */
+            quality: string;
+          };
+        };
+        /** Hash value for the document, possibly for integrity checks */
+        hash: number;
+      }
+    examples:
+      - _id:
+          $oid: 5553a999e4b02cf71511bb22
+        st: x+51200-144600
+        ts:
+          $date: 1984-03-08T00:00:00Z
+        position:
+          type: Point
+          coordinates:
+            - -144.6
+            - 51.2
+        elevation: 9999
+        callLetters: 8KBW
+        qualityControlProcess: V020
+        dataSource: "4"
+        type: FM-13
+        airTemperature:
+          value: 6.5
+          quality: "1"
+        dewPoint:
+          value: 6
+          quality: "1"
+        pressure:
+          value: 1000
+          quality: "1"
+        wind:
+          direction:
+            angle: 80
+            quality: "1"
+          type: N
+          speed:
+            rate: 16.4
+            quality: "1"
+        visibility:
+          distance:
+            value: 4000
+            quality: "1"
+          variability:
+            value: N
+            quality: "9"
+        skyCondition:
+          ceilingHeight:
+            value: 210
+            quality: "1"
+            determination: C
+          cavok: N
+        sections:
+          - AG1
+          - AY1
+          - GF1
+          - ...and 5 more items
+        precipitationEstimatedObservation:
+          discrepancy: "2"
+          estimatedWaterDepth: 2
+        pastWeatherObservationManual:
+          - atmosphericCondition: "[Object]"
+            period: "[Object]"
+        skyConditionObservation:
+          totalCoverage:
+            value: "08"
+            opaque: "99"
+            quality: "1"
+          lowestCloudCoverage:
+            value: "08"
+            quality: "1"
+          lowCloudGenus:
+            value: "06"
+            quality: "1"
+          lowestCloudBaseHeight:
+            value: 250
+            quality: "1"
+          midCloudGenus:
+            value: "99"
+            quality: "9"
+          highCloudGenus:
+            value: "99"
+            quality: "9"
+        atmosphericPressureChange:
+          tendency:
+            code: "7"
+            quality: "1"
+          quantity3Hours:
+            value: 3.5
+            quality: "1"
+          quantity24Hours:
+            value: 99.9
+            quality: "9"
+        ...: 4 more keys
+      - _id:
+          $oid: 5553a999e4b02cf71511c0c8
+        st: x+56800-156400
+        ts:
+          $date: 1984-03-08T12:00:00Z
+        position:
+          type: Point
+          coordinates:
+            - -156.4
+            - 56.8
+        elevation: 9999
+        callLetters: WTDM
+        qualityControlProcess: V020
+        dataSource: "4"
+        type: FM-13
+        airTemperature:
+          value: 6.8
+          quality: "1"
+        dewPoint:
+          value: 999.9
+          quality: "9"
+        pressure:
+          value: 1009.2
+          quality: "1"
+        wind:
+          direction:
+            angle: 50
+            quality: "1"
+          type: N
+          speed:
+            rate: 13.4
+            quality: "1"
+        visibility:
+          distance:
+            value: 20000
+            quality: "1"
+          variability:
+            value: N
+            quality: "9"
+        skyCondition:
+          ceilingHeight:
+            value: 3000
+            quality: "1"
+            determination: C
+          cavok: N
+        sections:
+          - AG1
+          - AY1
+          - GF1
+          - ...and 5 more items
+        precipitationEstimatedObservation:
+          discrepancy: "2"
+          estimatedWaterDepth: 2
+        pastWeatherObservationManual:
+          - atmosphericCondition: "[Object]"
+            period: "[Object]"
+        skyConditionObservation:
+          totalCoverage:
+            value: "05"
+            opaque: "99"
+            quality: "1"
+          lowestCloudCoverage:
+            value: "03"
+            quality: "1"
+          lowCloudGenus:
+            value: "03"
+            quality: "1"
+          lowestCloudBaseHeight:
+            value: 150
+            quality: "1"
+          midCloudGenus:
+            value: "07"
+            quality: "1"
+          highCloudGenus:
+            value: "99"
+            quality: "9"
+        atmosphericPressureChange:
+          tendency:
+            code: "7"
+            quality: "1"
+          quantity3Hours:
+            value: 2
+            quality: "1"
+          quantity24Hours:
+            value: 99.9
+            quality: "9"
+        ...: 4 more keys
+    indexes:
+      - v: 2
+        key:
+          _id: 1
+        name: _id_
+        description: Index on the _id field, which is the default unique identifier for
+          each document in the collection. This index ensures fast retrieval of
+          documents by their _id and is automatically created by MongoDB.

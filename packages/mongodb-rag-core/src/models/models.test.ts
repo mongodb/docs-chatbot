@@ -2,14 +2,11 @@
   @description Quick test to make sure all the models are functional.
   Useful to test before executing benchmark runs to ensure all models are working.
  */
-import {
-  assertEnvVars,
-  CORE_OPENAI_CONNECTION_ENV_VARS,
-} from "mongodb-rag-core";
-import { BRAINTRUST_ENV_VARS, GCP_VERTEX_AI_ENV_VARS } from "./envVars";
+import { assertEnvVars } from "../assertEnvVars";
+import { BRAINTRUST_ENV_VARS, GCP_VERTEX_AI_ENV_VARS } from "../CoreEnvVars";
 import { models } from "./models";
 import { makeOpenAiClientFactory } from "./makeOpenAiClientFactory";
-import { OpenAI } from "mongodb-rag-core/openai";
+import { OpenAI } from "openai";
 import "dotenv/config";
 
 jest.setTimeout(60000);

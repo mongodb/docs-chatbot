@@ -1,4 +1,4 @@
-import { models } from "../models";
+import { models } from "mongodb-rag-core/models";
 import "dotenv/config";
 import PromisePool from "@supercharge/promise-pool";
 import { runQuizQuestionEval } from "./QuizQuestionEval";

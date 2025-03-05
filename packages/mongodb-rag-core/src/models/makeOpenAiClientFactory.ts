@@ -1,22 +1,18 @@
-import { OpenAI } from "mongodb-rag-core/openai";
+import { OpenAI } from "openai";
 import { ModelConfig } from "./models";
 import { strict as assert } from "assert";
-import { wrapOpenAI } from "mongodb-rag-core/braintrust";
+import { wrapOpenAI } from "braintrust";
 interface BaseModelProviderConfig {
   apiKey: string;
   endpoint: string;
 }
 
 interface MakeOpenAiClientFactoryParams {
-  azure?: BaseModelProviderConfig & {
-    apiVersion: string;
-  };
   braintrust?: BaseModelProviderConfig;
   vertexAi?: BaseModelProviderConfig;
 }
 
 export function makeOpenAiClientFactory({
-  azure,
   braintrust,
   vertexAi,
 }: MakeOpenAiClientFactoryParams) {
