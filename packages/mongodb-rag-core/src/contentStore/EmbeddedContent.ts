@@ -1,4 +1,4 @@
-import { Page } from ".";
+import { Page, PersistedPage } from ".";
 import { VectorStore } from "../VectorStore";
 
 /**
@@ -75,6 +75,14 @@ export type DeleteEmbeddedContentArgs = {
   inverseDataSources?: boolean;
 };
 
+export interface GetSourcesMatchParams {
+  sourceNames?: string[];
+  chunkAlgoHash: {
+    hashValue: string;
+    operation: "equals" | "notEquals";
+  };
+}
+
 /**
   Data store of the embedded content.
  */
@@ -114,4 +122,9 @@ export type EmbeddedContentStore = VectorStore<EmbeddedContent> & {
     Initialize the store.
    */
   init?: () => Promise<void>;
+
+  /**
+   Get the data sources that match the given query. 
+   */
+  getDataSources(matchQuery: GetSourcesMatchParams): Promise<string[]>;
 };

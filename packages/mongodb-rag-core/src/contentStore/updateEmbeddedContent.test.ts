@@ -2,12 +2,27 @@ import {
   updateEmbeddedContent,
   updateEmbeddedContentForPage,
 } from "./updateEmbeddedContent";
-import { persistPages } from ".";
+import {
+  makeMongoDbEmbeddedContentStore,
+  makeMongoDbPageStore,
+  MongoDbEmbeddedContentStore,
+  MongoDbPageStore,
+  persistPages,
+  updatePages,
+} from ".";
 import { makeMockPageStore } from "../test/MockPageStore";
 import * as chunkPageModule from "../chunk/chunkPage";
-import { EmbeddedContentStore, EmbeddedContent } from "./EmbeddedContent";
+import {
+  EmbeddedContentStore,
+  EmbeddedContent,
+  GetSourcesMatchParams,
+} from "./EmbeddedContent";
 import { Embedder } from "../embed";
 import { Page, PersistedPage } from ".";
+import { strict as assert } from "assert";
+import { MongoMemoryReplSet } from "mongodb-memory-server";
+import { DataSource } from "../dataSources";
+import { MongoClient } from "mongodb";
 
 export const makeMockEmbeddedContentStore = (): EmbeddedContentStore => {
   const content: Map<string /* page url */, EmbeddedContent[]> = new Map();
@@ -28,6 +43,9 @@ export const makeMockEmbeddedContentStore = (): EmbeddedContentStore => {
     },
     metadata: {
       embeddingName: "test",
+    },
+    async getDataSources(matchQuery: GetSourcesMatchParams): Promise<string[]> {
+      return [];
     },
   };
 };
@@ -207,6 +225,7 @@ describe("updateEmbeddedContent", () => {
         store: embeddedContentStore,
         page,
         concurrencyOptions: { createChunks: 2 },
+        chunkAlgoHash: "testchunkalgohash",
       });
 
       const embeddedContent = await embeddedContentStore.loadEmbeddedContent({
@@ -274,5 +293,233 @@ describe("updateEmbeddedContent", () => {
         )
       ).toBe(true);
     });
+  });
+});
+
+// These tests use "mongodb-memory-server", not mockEmbeddedContentStore
+describe("updateEmbeddedContent", () => {
+  let mongod: MongoMemoryReplSet | undefined;
+  let pageStore: MongoDbPageStore;
+  let embedStore: MongoDbEmbeddedContentStore;
+  let uri: string;
+  let databaseName: string;
+  let mongoClient: MongoClient;
+  let page1Embedding: EmbeddedContent[], page2Embedding: EmbeddedContent[];
+  let pages: PersistedPage[] = [];
+
+  const embedder = {
+    async embed() {
+      return { embedding: [1, 2, 3] };
+    },
+  };
+  const mockDataSources: DataSource[] = [
+    {
+      name: "source1",
+      fetchPages: async () => [
+        {
+          url: "test1.com",
+          format: "html",
+          sourceName: "source1",
+          body: "hello source 1",
+        },
+      ],
+    },
+    {
+      name: "source2",
+      fetchPages: async () => [
+        {
+          url: "test2.com",
+          format: "html",
+          sourceName: "source2",
+          body: "hello source 2",
+        },
+      ],
+    },
+  ];
+  const mockDataSourceNames = mockDataSources.map(
+    (dataSource) => dataSource.name
+  );
+  beforeAll(async () => {
+    mongod = await MongoMemoryReplSet.create();
+    uri = mongod.getUri();
+    mongoClient = new MongoClient(uri);
+    await mongoClient.connect();
+  });
+  beforeEach(async () => {
+    // setup mongo client, page store, and embedded content store
+    databaseName = "test-all-command";
+    embedStore = makeMongoDbEmbeddedContentStore({
+      connectionUri: uri,
+      databaseName,
+      searchIndex: { embeddingName: "test-embedding" },
+    });
+    pageStore = makeMongoDbPageStore({
+      connectionUri: uri,
+      databaseName,
+    });
+    // create pages and verify that they have been created
+    await updatePages({ sources: mockDataSources, pageStore });
+    pages = await pageStore.loadPages();
+    assert(pages.length == 2);
+    // create embeddings for the pages and verify that they have been created
+    await updateEmbeddedContent({
+      since: new Date(0),
+      embeddedContentStore: embedStore,
+      pageStore,
+      sourceNames: mockDataSourceNames,
+      embedder,
+    });
+    page1Embedding = await embedStore.loadEmbeddedContent({
+      page: pages[0],
+    });
+    page2Embedding = await embedStore.loadEmbeddedContent({
+      page: pages[1],
+    });
+    assert(page1Embedding.length);
+    assert(page2Embedding.length);
+  });
+
+  afterEach(async () => {
+    await pageStore?.drop();
+    await embedStore?.drop();
+  });
+  afterAll(async () => {
+    await pageStore?.close();
+    await embedStore?.close();
+    await mongoClient?.close();
+    await mongod?.stop();
+  });
+
+  it("updates embedded content for pages that have been updated after the 'since' date provided", async () => {
+    // Modify dates of pages and embedded content for testing
+    const sinceDate = new Date("2024-01-01");
+    const beforeSinceDate = new Date("2023-01-01");
+    const afterSinceDate = new Date("2025-01-01");
+    // set pages[0] to be last updated before sinceDate (should not be modified)
+    await mongoClient
+      .db(databaseName)
+      .collection("pages")
+      .updateOne({ ...pages[0] }, { $set: { updated: beforeSinceDate } });
+    await mongoClient
+      .db(databaseName)
+      .collection("embedded_content")
+      .updateOne(
+        { sourceName: mockDataSourceNames[0] },
+        { $set: { updated: beforeSinceDate } }
+      );
+    // set pages[1] to be last updated after sinceDate (should be re-chunked)
+    await mongoClient
+      .db(databaseName)
+      .collection("pages")
+      .updateOne({ ...pages[1] }, { $set: { updated: afterSinceDate } });
+    await mongoClient
+      .db(databaseName)
+      .collection("embedded_content")
+      .updateOne(
+        { sourceName: mockDataSourceNames[1] },
+        { $set: { updated: afterSinceDate } }
+      );
+    const originalPage1Embedding = await embedStore.loadEmbeddedContent({
+      page: pages[0],
+    });
+    const originalPage2Embedding = await embedStore.loadEmbeddedContent({
+      page: pages[1],
+    });
+    await updateEmbeddedContent({
+      since: sinceDate,
+      embeddedContentStore: embedStore,
+      pageStore,
+      sourceNames: mockDataSourceNames,
+      embedder,
+    });
+    const updatedPage1Embedding = await embedStore.loadEmbeddedContent({
+      page: pages[0],
+    });
+    const updatedPage2Embedding = await embedStore.loadEmbeddedContent({
+      page: pages[1],
+    });
+    assert(updatedPage1Embedding.length);
+    assert(updatedPage2Embedding.length);
+    expect(updatedPage1Embedding[0].updated.getTime()).toBe(
+      originalPage1Embedding[0].updated.getTime()
+    );
+    expect(updatedPage2Embedding[0].updated.getTime()).not.toBe(
+      originalPage2Embedding[0].updated.getTime()
+    );
+  });
+  it("updates embedded content when page has not changed, but chunk algo has, ignoring since date", async () => {
+    // change the chunking algo for the second page, but not the first
+    await updateEmbeddedContent({
+      since: new Date(),
+      embeddedContentStore: embedStore,
+      pageStore,
+      sourceNames: [mockDataSourceNames[0]],
+      embedder,
+    });
+    await updateEmbeddedContent({
+      since: new Date(),
+      embeddedContentStore: embedStore,
+      pageStore,
+      sourceNames: [mockDataSourceNames[1]],
+      embedder,
+      chunkOptions: { chunkOverlap: 2 },
+    });
+    const updatedPage1Embedding = await embedStore.loadEmbeddedContent({
+      page: pages[0],
+    });
+    const updatedPage2Embedding = await embedStore.loadEmbeddedContent({
+      page: pages[1],
+    });
+    assert(updatedPage1Embedding.length);
+    assert(updatedPage2Embedding.length);
+    expect(updatedPage1Embedding[0].chunkAlgoHash).toBe(
+      page1Embedding[0].chunkAlgoHash
+    );
+    expect(updatedPage2Embedding[0].chunkAlgoHash).not.toBe(
+      page2Embedding[0].chunkAlgoHash
+    );
+  });
+  it("use a new chunking algo on data sources, some of which have pages that have been updated", async () => {
+    // SETUP: Modify dates of pages and embedded content for this test case
+    const sinceDate = new Date("2024-01-01");
+    const afterSinceDate = new Date("2025-01-01");
+    await mongoClient
+      .db(databaseName)
+      .collection("pages")
+      .updateOne({ ...pages[0] }, { $set: { updated: afterSinceDate } });
+    await mongoClient
+      .db(databaseName)
+      .collection("embedded_content")
+      .updateOne(
+        { sourceName: mockDataSourceNames[0] },
+        { $set: { updated: afterSinceDate } }
+      );
+    const originalPage1Embedding = await embedStore.loadEmbeddedContent({
+      page: pages[0],
+    });
+    // END SETUP
+    await updateEmbeddedContent({
+      since: sinceDate,
+      embeddedContentStore: embedStore,
+      pageStore,
+      sourceNames: mockDataSourceNames,
+      embedder,
+      chunkOptions: { chunkOverlap: 2 },
+    });
+    const updatedPage1Embedding = await embedStore.loadEmbeddedContent({
+      page: pages[0],
+    });
+    const updatedPage2Embedding = await embedStore.loadEmbeddedContent({
+      page: pages[1],
+    });
+    assert(updatedPage1Embedding.length);
+    assert(updatedPage2Embedding.length);
+    // both pages should be updated
+    expect(updatedPage1Embedding[0].chunkAlgoHash).not.toBe(
+      originalPage1Embedding[0].chunkAlgoHash
+    );
+    expect(updatedPage2Embedding[0].chunkAlgoHash).not.toBe(
+      page2Embedding[0].chunkAlgoHash
+    );
   });
 });

@@ -1,6 +1,10 @@
-import { pageIdentity } from ".";
+import { pageIdentity, PersistedPage } from ".";
 import { DatabaseConnection } from "../DatabaseConnection";
-import { EmbeddedContent, EmbeddedContentStore } from "./EmbeddedContent";
+import {
+  EmbeddedContent,
+  EmbeddedContentStore,
+  GetSourcesMatchParams,
+} from "./EmbeddedContent";
 import { FindNearestNeighborsOptions, WithScore } from "../VectorStore";
 import {
   MakeMongoDbDatabaseConnectionParams,
@@ -57,6 +61,27 @@ export type MongoDbEmbeddedContentStore = EmbeddedContentStore &
     };
     init(): Promise<void>;
   };
+
+function makeMatchQuery({ sourceNames, chunkAlgoHash }: GetSourcesMatchParams) {
+  let operator = "";
+  if (chunkAlgoHash.operation === "equals") {
+    operator = "$eq";
+  }
+  if (chunkAlgoHash.operation === "notEquals") {
+    operator = "$ne";
+  }
+  return {
+    chunkAlgoHash: { [operator]: chunkAlgoHash.hashValue },
+    // run on specific source names if specified, run on all if not
+    ...(sourceNames
+      ? {
+          sourceName: {
+            $in: sourceNames,
+          },
+        }
+      : undefined),
+  };
+}
 
 export function makeMongoDbEmbeddedContentStore({
   connectionUri,
@@ -231,6 +256,23 @@ export function makeMongoDbEmbeddedContentStore({
           throw error;
         }
       }
+    },
+
+    async getDataSources(matchQuery: GetSourcesMatchParams): Promise<string[]> {
+      const result = await embeddedContentCollection
+        .aggregate([
+          { $match: makeMatchQuery(matchQuery) },
+          {
+            $group: {
+              _id: null,
+              uniqueSources: { $addToSet: "$sourceName" },
+            },
+          },
+          { $project: { _id: 0, uniqueSources: 1 } },
+        ])
+        .toArray();
+      const uniqueSources = result.length > 0 ? result[0].uniqueSources : [];
+      return uniqueSources;
     },
   };
 }
